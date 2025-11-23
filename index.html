@@ -1,20 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8" />
-<title>Generar Carnet PDF</title>
+<title>Carnet generado por código</title>
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
+
+<style>
+body { font-family: Arial; padding: 40px; }
+button { padding: 12px 25px; font-size: 16px; }
+</style>
 </head>
 
 <body>
-<h2>Generar Carnet sin plantilla</h2>
 
-<button onclick="generarPDF()">Descargar Carnet</button>
+<h2>Generar carnet (sin plantilla PDF)</h2>
+<p>Este carnet se genera 100% por código replicando tu diseño.</p>
+
+<button onclick="generarCarnet()">Descargar Carnet</button>
 
 <script>
-async function generarPDF() {
+async function generarCarnet() {
 
-    // Simulación de datos obtenidos del CSV
+    // Estos datos vendrán desde tu CSV (esto es solo un ejemplo)
     const d = {
         nombre: "JUAN SEBASTIAN YNOA ACOSTA",
         cedula: "18026-47363-00",
@@ -23,64 +30,81 @@ async function generarPDF() {
         fecha: "25/09/2005"
     };
 
-    // Crear PDF vacío
+    // Dimensiones del PDF según tu archivo real
+    const WIDTH = 595;
+    const HEIGHT = 420;
+
     const pdfDoc = await PDFLib.PDFDocument.create();
-    const page = pdfDoc.addPage([350, 500]);
+    const page = pdfDoc.addPage([WIDTH, HEIGHT]);
 
     const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+    const bold = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
 
-    // Fondo gris claro
+    // Fondo blanco
     page.drawRectangle({
-        x: 10,
-        y: 10,
-        width: 330,
-        height: 480,
-        color: PDFLib.rgb(0.95, 0.95, 0.95),
-        borderWidth: 1
+        x: 0,
+        y: 0,
+        width: WIDTH,
+        height: HEIGHT,
+        color: PDFLib.rgb(1, 1, 1)
     });
 
-    // Título
-    page.drawText("CARNET DE AFILIADO", {
-        x: 90,
-        y: 450,
-        size: 16,
-        font,
-    });
-
-    // Campos
-    const campos = [
-        { label: "Nombre:", value: d.nombre },
-        { label: "Cédula:", value: d.cedula },
-        { label: "NSS:", value: d.nss },
-        { label: "Póliza:", value: d.poliza },
-        { label: "Fecha Nac.:", value: d.fecha }
-    ];
-
-    let y = 400;
-
-    campos.forEach(c => {
-        page.drawText(c.label, { x: 20, y, size: 12, font });
-        page.drawText(c.value, { x: 120, y, size: 12, font });
-        y -= 40;
-    });
-
-    // Pie de página
-    page.drawText("Presentar junto a este carnet su documento de identidad", {
+    // Cuadro principal (gris claro)
+    page.drawRectangle({
         x: 20,
-        y: 40,
-        size: 10,
-        font
+        y: 20,
+        width: WIDTH - 40,
+        height: HEIGHT - 40,
+        color: PDFLib.rgb(0.96, 0.96, 0.96),
+        borderWidth: 2,
+        borderColor: PDFLib.rgb(0, 0, 0)
     });
 
-    const pdfBytes = await pdfDoc.save();
+    // TÍTULO PRINCIPAL (simula encabezado del carnet)
+    page.drawText("Cédula:", {
+        x: 40, y: HEIGHT - 80,
+        size: 14, font: bold
+    });
+    page.drawText(d.cedula, {
+        x: 120, y: HEIGHT - 80,
+        size: 14, font
+    });
 
-    // Descargar
+    // Nombre en grande (centrado como en el PDF)
+    page.drawText(d.nombre, {
+        x: 40,
+        y: HEIGHT - 120,
+        size: 18,
+        font: bold
+    });
+
+    // Etiquetas alineadas igual que en el Test_Carnet.pdf
+    page.drawText("Nombre", { x: 40, y: HEIGHT - 150, size: 12, font });
+    page.drawText("Póliza", { x: 40, y: HEIGHT - 180, size: 12, font });
+    page.drawText("Fecha Nac.", { x: 180, y: HEIGHT - 180, size: 12, font });
+    page.drawText("NSS:", { x: 40, y: HEIGHT - 210, size: 12, font });
+
+    // Valores (alineados con el PDF)
+    page.drawText(d.poliza, { x: 40, y: HEIGHT - 195, size: 14, font });
+    page.drawText(d.fecha, { x: 180, y: HEIGHT - 195, size: 14, font });
+    page.drawText(d.nss, { x: 80, y: HEIGHT - 210, size: 14, font });
+
+    // Pie de página (tal cual aparece en tu PDF)
+    page.drawText("PRESENTAR JUNTO A ESTE CARNET SU DOCUMENTO DE IDENTIDAD", {
+        x: 40,
+        y: 40,
+        size: 12,
+        font: bold
+    });
+
+    // Descarga del PDF
+    const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = "Carnet.pdf";
+    a.download = "Carnet_Asegurado.pdf";
     a.click();
     URL.revokeObjectURL(url);
 }
