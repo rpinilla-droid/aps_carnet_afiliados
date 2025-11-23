@@ -1,121 +1,265 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<title>Validación de Carnet</title>
-<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
-<style>
-body {
-  font-family: Arial;
-  margin: 30px;
-}
-input {
-  display:block;
-  margin-bottom: 10px;
-  padding: 10px;
-  width: 300px;
-}
-button {
-  padding: 10px 20px;
-}
-</style>
-</head>
-
-<body>
-
-<h2>Consulta de Carnet</h2>
-
-<label>Cédula</label>
-<input id="cedula" />
-
-<label>Póliza</label>
-<input id="poliza" />
-
-<label>Fecha de nacimiento (dd/mm/aaaa)</label>
-<input id="fecha" />
-
-<button onclick="validar()">Validar y Descargar Carnet</button>
-
-<script>
-async function validar() {
-
-    const cedula = document.getElementById("cedula").value.trim();
-    const poliza = document.getElementById("poliza").value.trim();
-    const fecha = document.getElementById("fecha").value.trim();
-
-    if (!cedula || !poliza || !fecha) {
-        alert("Complete todos los campos");
-        return;
-    }
-
-    // URL RAW del CSV en GitHub
-    const urlCSV = "https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/datos.csv";
-
-    const resp = await fetch(urlCSV);
-    const texto = await resp.text();
-
-    const lineas = texto.split("\n").map(l => l.trim()).filter(l => l.length > 0);
-
-    // Saltar encabezado
-    lineas.shift();
-
-    let encontrado = null;
-
-    for (let fila of lineas) {
-        const [nombre, ced, nss, pol, fec] = fila.split(";");
-
-        if (ced.trim() === cedula &&
-            pol.trim() === poliza &&
-            fec.trim() === fecha) {
-
-            encontrado = { nombre, ced, nss, pol, fec };
-            break;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Carnet Digital PDF</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
         }
-    }
+    </style>
+</head>
+<body class="p-4 sm:p-8 bg-gray-50 min-h-screen flex items-center justify-center">
 
-    if (!encontrado) {
-        alert("Datos no encontrados o incorrectos.");
-        return;
-    }
+    <div class="w-full max-w-lg bg-white p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-100">
+        <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">Carnet Digital V2</h1>
+        <p class="text-center text-sm text-gray-500 mb-8">
+            Verificación de Afiliación y Generación de Carnet PDF.
+        </p>
 
-    generarPDF(encontrado);
-}
+        <form id="verificationForm" class="space-y-4">
+            <div>
+                <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula</label>
+                <input type="text" id="cedula" placeholder="Ej: 402-3992803-5" required
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+            </div>
+            <div>
+                <label for="poliza" class="block text-sm font-medium text-gray-700">Póliza</label>
+                <input type="text" id="poliza" placeholder="Ej: 18026-47363-00" required
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+            </div>
+            <div>
+                <label for="fechaNacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (AAAA-MM-DD)</label>
+                <input type="date" id="fechaNacimiento" required
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+            </div>
 
+            <button type="submit"
+                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                Verificar y Generar Carnet
+            </button>
+        </form>
 
-// ========== GENERAR PDF =============
-async function generarPDF(d) {
+        <div id="messageBox" class="mt-6 p-4 rounded-lg text-sm text-center hidden"></div>
 
-    const templateUrl = "Test_Carnet.pdf"; // súbelo a tu hosting o usa ruta relativa
+        <div id="resultBox" class="mt-6 p-6 bg-green-50 rounded-xl hidden">
+            <h3 class="text-lg font-semibold text-green-700 mb-4">Afiliado Verificado Correctamente</h3>
+            <p id="afiliadoNombre" class="text-gray-800 text-lg font-medium"></p>
+            <p class="text-sm text-gray-600 mt-2">
+                Presione el botón para descargar su carnet digital.
+            </p>
+            <button id="downloadBtn"
+                    class="mt-4 w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
+                Descargar Carnet PDF
+            </button>
+        </div>
+    </div>
 
-    const existingPdf = await fetch(templateUrl).then(r => r.arrayBuffer());
+    <script type="text/javascript">
+        // =================================================================
+        // 1. DATA (El CSV Incrustado y el PDF Base64)
+        // =================================================================
 
-    const pdfDoc = await PDFLib.PDFDocument.load(existingPdf);
-    const pages = pdfDoc.getPages();
-    const page = pages[0];
+        // Simulación del contenido del archivo data.csv
+        const CSV_DATA_STRING = `Cedula,Poliza,FechaNacimiento,Nombre,NSS
+402-3992803-5,18026-47363-00,2005-09-25,JUAN SEBASTIAN YNOA ACOSTA,185586226
+000-0000000-0,99999-00000-00,1990-01-01,OTRO AFILIADO EJEMPLO,000000000`;
 
-    // Fuente
-    const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+        // === IMPORTANTE: PEGAR AQUÍ EL BASE64 DE TU ARCHIVO Test_Carnet.pdf ===
+        // Utiliza una herramienta online (PDF to Base64) o un script para generar
+        // el base64 de tu plantilla PDF y pégalo aquí.
+        const PDF_TEMPLATE_BASE64 = '[PEGA AQUI LA CADENA BASE64 DE TU ARCHIVO TEST_CARNET.PDF]';
+        // =================================================================
 
-    // Escribir datos en posiciones fijas (ajusta según tu plantilla)
-    page.drawText(d.nombre, { x: 80, y: 380, size: 12, font });
-    page.drawText(d.ced,    { x: 80, y: 350, size: 12, font });
-    page.drawText(d.nss,    { x: 80, y: 320, size: 12, font });
-    page.drawText(d.pol,    { x: 80, y: 290, size: 12, font });
-    page.drawText(d.fec,    { x: 80, y: 260, size: 12, font });
+        // Variables de la UI
+        const form = document.getElementById('verificationForm');
+        const messageBox = document.getElementById('messageBox');
+        const resultBox = document.getElementById('resultBox');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const afiliadoNombreEl = document.getElementById('afiliadoNombre');
 
-    const pdfBytes = await pdfDoc.save();
+        let afiliadoEncontrado = null;
 
-    // Descargar
-    const blob = new Blob([pdfBytes], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
+        /**
+         * Muestra un mensaje de estado (éxito/error).
+         * @param {string} message - El mensaje a mostrar.
+         * @param {string} type - 'success' o 'error'.
+         */
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = 'mt-6 p-4 rounded-lg text-sm text-center'; // Reset class
+            messageBox.classList.remove('hidden');
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "Carnet.pdf";
-    a.click();
-    URL.revokeObjectURL(url);
-}
-</script>
+            if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-800');
+            } else if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-800');
+            } else {
+                messageBox.classList.add('bg-blue-100', 'text-blue-800');
+            }
+        }
 
+        /**
+         * Parsea la cadena CSV a un array de objetos.
+         * @param {string} data - La cadena CSV.
+         * @returns {Array<Object>} Lista de afiliados.
+         */
+        function parseCSV(data) {
+            const lines = data.trim().split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            const records = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',').map(v => v.trim());
+                if (values.length === headers.length) {
+                    const record = {};
+                    headers.forEach((header, index) => {
+                        record[header] = values[index];
+                    });
+                    records.push(record);
+                }
+            }
+            return records;
+        }
+
+        /**
+         * Formatea la fecha de AAAA-MM-DD a DD/MM/AAAA.
+         * @param {string} dateString - Fecha en formato AAAA-MM-DD.
+         * @returns {string} Fecha en formato DD/MM/AAAA.
+         */
+        function formatFecha(dateString) {
+            if (!dateString) return '';
+            const [year, month, day] = dateString.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        /**
+         * Busca al afiliado en la data cargada.
+         * @param {string} cedula
+         * @param {string} poliza
+         * @param {string} fechaNacimiento (AAAA-MM-DD)
+         * @returns {Object|null} El objeto del afiliado o null si no se encuentra.
+         */
+        function buscarAfiliado(cedula, poliza, fechaNacimiento) {
+            const afiliados = parseCSV(CSV_DATA_STRING);
+            return afiliados.find(afiliado =>
+                afiliado.Cedula === cedula &&
+                afiliado.Poliza === poliza &&
+                afiliado.FechaNacimiento === fechaNacimiento
+            );
+        }
+
+        /**
+         * Genera el PDF con los datos del afiliado.
+         * @param {Object} afiliado - Datos del afiliado.
+         */
+        async function generarPDF(afiliado) {
+            if (PDF_TEMPLATE_BASE64.includes('[PEGA AQUI LA CADENA BASE64')) {
+                showMessage("¡ERROR! Debe reemplazar la variable PDF_TEMPLATE_BASE64 con el Base64 de su archivo 'Test_Carnet.pdf'.", 'error');
+                return;
+            }
+
+            try {
+                // 1. Cargar el PDF de la plantilla
+                const existingPdfBytes = Uint8Array.from(atob(PDF_TEMPLATE_BASE64), c => c.charCodeAt(0));
+                const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+
+                // 2. Obtener la primera página (o la que contenga el carnet)
+                const pages = pdfDoc.getPages();
+                const firstPage = pages[0];
+
+                // 3. Crear una fuente para el texto
+                // Usamos una fuente estándar que ya está incrustada
+                const font = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+
+                // 4. Definir los datos a escribir
+                // Adaptamos la data para que coincida con los campos del carnet
+                const dataCarnet = {
+                    nombre: afiliado.Nombre,
+                    poliza: afiliado.Poliza,
+                    fechaNac: formatFecha(afiliado.FechaNacimiento), // DD/MM/AAAA
+                    cedula: afiliado.Cedula,
+                    nss: afiliado.NSS,
+                };
+
+                // 5. Especificar las coordenadas y el tamaño de la fuente para cada campo
+                // NOTA: Estas coordenadas son específicas de la plantilla 'Test_Carnet.pdf'.
+                // Pueden requerir ajustes manuales para tu PDF exacto.
+                const fields = [
+                    // Nombre: (aproximadamente en la parte central superior del carnet)
+                    { text: dataCarnet.nombre, x: 180, y: 550, size: 10, align: 'left' },
+
+                    // Póliza: (debajo del nombre)
+                    { text: dataCarnet.poliza, x: 180, y: 535, size: 10, align: 'left' },
+
+                    // Fecha Nacimiento: (parte derecha superior del carnet)
+                    { text: dataCarnet.fechaNac, x: 260, y: 520, size: 10, align: 'left' },
+
+                    // Cédula: (parte inferior izquierda del carnet)
+                    { text: dataCarnet.cedula, x: 180, y: 505, size: 10, align: 'left' },
+
+                    // NSS: (parte inferior derecha del carnet)
+                    { text: dataCarnet.nss, x: 230, y: 490, size: 10, align: 'left' },
+                ];
+
+                // 6. Dibujar el texto en el PDF
+                fields.forEach(field => {
+                    firstPage.drawText(field.text, {
+                        x: field.x,
+                        y: field.y,
+                        size: field.size,
+                        font: font,
+                        color: PDFLib.rgb(0.1, 0.1, 0.1), // Color de texto negro oscuro
+                    });
+                });
+
+                // 7. Serializar y descargar
+                const pdfBytes = await pdfDoc.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                saveAs(blob, `Carnet_Digital_${afiliado.Cedula}.pdf`);
+
+                showMessage(`Carnet de ${afiliado.Nombre} generado y descargado con éxito.`, 'success');
+                resultBox.classList.add('hidden'); // Ocultar el resultado después de la descarga
+            } catch (error) {
+                console.error("Error al generar el PDF:", error);
+                showMessage(`Error al procesar el PDF: ${error.message}. Verifique que el Base64 sea correcto.`, 'error');
+            }
+        }
+
+        // =================================================================
+        // 3. EVENT LISTENERS
+        // =================================================================
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            messageBox.classList.add('hidden');
+            resultBox.classList.add('hidden');
+
+            const cedula = document.getElementById('cedula').value.trim();
+            const poliza = document.getElementById('poliza').value.trim();
+            const fechaNacimiento = document.getElementById('fechaNacimiento').value;
+
+            afiliadoEncontrado = buscarAfiliado(cedula, poliza, fechaNacimiento);
+
+            if (afiliadoEncontrado) {
+                afiliadoNombreEl.textContent = afiliadoEncontrado.Nombre;
+                resultBox.classList.remove('hidden');
+            } else {
+                showMessage('Verificación fallida. Los datos no coinciden con ningún afiliado.', 'error');
+            }
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (afiliadoEncontrado) {
+                generarPDF(afiliadoEncontrado);
+            }
+        });
+    </script>
 </body>
 </html>
