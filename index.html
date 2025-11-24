@@ -182,7 +182,7 @@
         // !!! DEBE REEMPLAZAR ESTAS URLS CON SUS ENLACES RAW REALES DE GITHUB !!!
         // --------------------------------------------------------------------------
         const CSV_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/afiliados.csv'; 
-        const CARNET_IMAGE_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/carnet.png';
+        const CARNET_IMAGE_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/carnet.png'; 
         
         // --------------------------------------------------------------------------
         // LÓGICA DE COORDENADAS Y ESCALA SOLICITADA
@@ -225,7 +225,6 @@
          */
         function parseCSV(csvText) {
             const lines = csvText.trim().split('\n');
-            // Las cabeceras del CSV: Nombre;Cedula;NSS;Poliza;FechaNacimiento
             const keys = ["Nombre", "Cedula", "NSS", "Poliza", "FechaNacimiento"]; 
             
             // Ignorar la primera línea (cabecera)
@@ -233,29 +232,25 @@
                 const values = line.split(';');
                 const affiliate = {};
                 keys.forEach((key, i) => {
-                    // Limpiar y asignar valor
-                    affiliate[key] = values[i] ? values[i].trim() : ''; 
+                    affiliate[key] = values[i] ? values[i].trim() : '';
                 });
                 return affiliate;
-            }).filter(aff => aff.Cedula); // Filtrar filas vacías o sin cédula
+            });
         }
 
         /**
-         * Carga los datos del CSV usando la API Fetch.
+         * Carga los datos del CSV usando la API Fetch, decodificando como Windows-1252 para evitar errores de tildes.
          */
         async function loadAffiliateData() {
             try {
                 if (CSV_URL.includes('PLACEHOLDER')) {
-                    throw new Error("ERROR: La URL del CSV no ha sido reemplazada. Usando datos de prueba anónimos.");
-                    // Si falla por PLACEHOLDER, se puede usar un dato anónimo para probar el resto de la interfaz.
-                    affiliateData = [{ Nombre: "USUARIO DE PRUEBA", Cedula: "000-0000000-0", NSS: "12345678", Poliza: "TEST-0000-00", FechaNacimiento: "01/01/2000" }];
-                    return true;
+                    throw new Error("La URL del CSV no ha sido reemplazada. Fallo estricto.");
                 }
 
                 const response = await fetch(CSV_URL);
                 if (!response.ok) throw new Error(`Error ${response.status} al cargar el CSV. Verifique la URL RAW y CORS.`);
                 
-                // Carga de datos con decodificación Windows-1252 para Ñ, tildes 
+                // Carga de datos con decodificación Windows-1252 para Ñ, tildes (solución temporal para CSV no-UTF8)
                 const buffer = await response.arrayBuffer(); 
                 const decoder = new TextDecoder('windows-1252'); 
                 const csvText = decoder.decode(buffer);
@@ -280,8 +275,7 @@
         async function loadCarnetImage() {
             try {
                 if (CARNET_IMAGE_URL.includes('PLACEHOLDER')) {
-                    console.warn("ADVERTENCIA: La URL de la imagen carnet no ha sido reemplazada. El PDF se generará sin fondo.");
-                    return false;
+                    throw new Error("La URL de la imagen carnet no ha sido reemplazada. Fallo estricto.");
                 }
                 
                 const response = await fetch(CARNET_IMAGE_URL);
@@ -321,15 +315,13 @@
 
             // 1. Mostrar estado de carga y deshabilitar botón
             downloadButton.disabled = true;
-            // Quitamos el hover temporalmente para que se vea claramente deshabilitado
-            downloadButton.classList.remove('hover:bg-aps-blue-hover'); 
             loadingMessage.classList.remove('hidden');
 
             try {
                 const pdf = new jsPDF({
                     orientation: 'l', // Horizontal
                     unit: 'mm',
-                    format: [PDF_WIDTH_MM, PDF_HEIGHT_MM] // Usa las dimensiones ID-1
+                    format: [PDF_WIDTH_MM, PDF_HEIGHT_MM] // Usa las dimensiones ID-1 solicitadas
                 });
                 
                 // --- 1. IMAGEN DE FONDO (CARNET.PNG) ---
@@ -361,23 +353,24 @@
                     let x_mm = mmX(x_px_coord);
                     let y_mm = mmY(y_px_coord); 
                     
+                    // Asegurar que solo se escriba si el valor existe
                     if(dataFields[key]) {
                         pdf.text(dataFields[key], x_mm, y_mm);
                     }
                 }
 
-                // Descargar el archivo.
+                // Descargar el archivo (Esta operación puede tardar)
                 pdf.save(`Carnet_APS_${affiliate.Cedula}.pdf`);
                 
             } catch (error) {
                 console.error("Error al generar el PDF:", error);
-                alert("Hubo un error CRÍTICO al intentar generar el PDF. Revise la consola del navegador.");
+                alert("Hubo un error CRÍTICO al intentar generar el PDF. Revise la consola del navegador para detalles. Esto puede ser por una URL RAW incorrecta de la plantilla de imagen o datos inválidos.");
             } finally {
-                // 2. Ocultar estado de carga y habilitar botón.
-                // Usamos setTimeout para evitar el bloqueo visual con pdf.save().
+                // 2. Ocultar estado de carga y habilitar botón
+                // Usamos setTimeout para asegurar que la actualización del DOM ocurra después 
+                // de que el navegador ha terminado de manejar el proceso de guardado/descarga.
                 setTimeout(() => {
                     downloadButton.disabled = false;
-                    downloadButton.classList.add('hover:bg-aps-blue-hover');
                     loadingMessage.classList.add('hidden');
                 }, 100); 
             }
@@ -400,7 +393,7 @@
 
             // Lógica estricta: Si el CSV no carga, no se puede continuar.
             if (!dataLoaded || affiliateData.length === 0) {
-                statusMessage = "Error CRÍTICO: No se pudieron cargar datos de afiliación válidos. Verifique la URL RAW y la consola.";
+                statusMessage = "Error CRÍTICO: No se pudieron cargar datos de afiliación válidos del CSV. Verifique la URL RAW y la consola.";
                 dataLoadingMessage.classList.add('text-red-600');
                 canProceed = false;
             }
@@ -413,25 +406,28 @@
 
             // Habilitar o deshabilitar el botón y actualizar mensaje final
             if (canProceed) {
+                // Limpiar estilos de error si la carga fue exitosa o solo hubo advertencia
                 dataLoadingMessage.classList.remove('text-red-600', 'text-gray-500'); 
                 
                 if (statusMessage === "") {
+                    // Carga completa y exitosa (ambos OK)
                     dataLoadingMessage.classList.add('text-green-600');
-                    dataLoadingMessage.textContent = "Carga de datos completada.";
+                } else {
+                    // Carga exitosa con advertencia (CSV OK, imagen KO)
+                    dataLoadingMessage.classList.add('text-orange-600');
                 }
 
                 submitButton.disabled = false;
                 submitButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
                 submitButton.classList.add('bg-aps-blue', 'hover:bg-aps-blue-hover');
             } else {
+                 // Error crítico, dejar el botón deshabilitado y mostrar el mensaje de error crítico
                  dataLoadingMessage.classList.remove('text-gray-500'); 
                  dataLoadingMessage.classList.add('text-red-600');
             }
             
-            // Mostrar el mensaje de error o advertencia si existe
-            if (statusMessage.trim() !== "") {
-                dataLoadingMessage.textContent = statusMessage.trim();
-            }
+            // Si statusMessage es "", el div dataLoadingMessage queda vacío.
+            dataLoadingMessage.textContent = statusMessage.trim();
 
 
             const loginScreen = document.getElementById('carnet-login-screen');
@@ -447,7 +443,7 @@
                 errorMessage.classList.add('hidden'); 
                 
                 if (!canProceed) {
-                    alert("Error: La carga de datos falló. Verifique los enlaces RAW y la consola.");
+                    alert("Error: El sistema no cargó la data de afiliados. Por favor, recargue la página o verifique la URL RAW del CSV.");
                     return;
                 }
 
