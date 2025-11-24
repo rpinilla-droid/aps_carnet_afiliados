@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APS Salud - Portal de Afiliados</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -115,7 +115,7 @@
                             Datos incorrectos. Por favor, verifique su Cédula, Póliza y Fecha de Nacimiento.
                         </div>
                         <div id="data-loading-message" class="text-sm text-center text-gray-500 font-medium">
-                            Cargando datos de afiliación...
+                            Cargando datos de afiliación y plantilla de carnet...
                         </div>
                         
                         <div>
@@ -178,17 +178,29 @@
     <script>
         const { jsPDF } = window.jspdf; 
         
-        // [!!! IMPORTANTE: REEMPLACE ESTA URL CON EL ENLACE PÚBLICO RAW DE SU ARCHIVO afiliados.csv EN GITHUB !!!]
-        // EJEMPLO de URL RAW: https://raw.githubusercontent.com/su_usuario/su_repo/main/afiliados.csv
-        const CSV_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/afiliados.csv'; // URL Placeholder para explicación
-        // Fallback: Si no cambia la URL, el código usará estos datos para que pueda probar la interfaz.
+        // --------------------------------------------------------------------------
+        // !!! DEBE REEMPLAZAR ESTAS URLS !!!
+        // --------------------------------------------------------------------------
+        const CSV_URL = 'https://PLACEHOLDER.com/REEMPLACEME_CON_SU_CSV_RAW_URL'; 
+        const CARNET_IMAGE_URL = 'https://PLACEHOLDER.com/REEMPLACEME_CON_SU_CARNET_PNG_RAW_URL'; 
+        
+        // Fallback y constantes internas
         const FALLBACK_CSV_CONTENT = `Nombre;Cedula;NSS;Poliza;FechaNacimiento
 CRISTIAN AGUSTIN ULLOA MARTINEZ;001-0219588-0;2434133;00525-00018-04;13/06/1974
 YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
 
+        // Coordenadas proporcionadas por el usuario
+        const COORDINATES = {
+            Nombre: [35, 408],
+            Cedula: [900, 114],
+            NSS: [900, 190],
+            Poliza: [44, 638],
+            FechaNacimiento: [563, 638]
+        };
         
         let affiliateData = [];
         let loggedInAffiliate = null;
+        let carnetBase64Image = null; // Almacena la imagen Base64
         
         const dataLoadingMessage = document.getElementById('data-loading-message');
         const submitButton = document.getElementById('submit-button');
@@ -217,29 +229,52 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
          */
         async function loadAffiliateData() {
             try {
-                // Si la URL no se ha reemplazado, usamos el fallback.
                 if (CSV_URL.includes('PLACEHOLDER')) {
                     affiliateData = parseCSV(FALLBACK_CSV_CONTENT);
-                    dataLoadingMessage.textContent = "¡Datos de prueba listos! Reemplace la URL en el script para usar su CSV.";
-                    console.warn("ADVERTENCIA: Usando datos simulados. Reemplace 'CSV_URL' para usar su CSV.");
+                    console.warn("ADVERTENCIA: Usando datos simulados. Reemplace 'CSV_URL'.");
                     return true;
                 }
 
-                // Intentar consumir el CSV de la URL externa
                 const response = await fetch(CSV_URL);
-                if (!response.ok) {
-                    throw new Error(`Error ${response.status} al cargar el CSV: Verifique si la URL es RAW y pública.`);
-                }
+                if (!response.ok) throw new Error(`Error ${response.status}`);
+                
                 const csvText = await response.text();
                 affiliateData = parseCSV(csvText);
-                dataLoadingMessage.textContent = "Datos de afiliación cargados con éxito.";
                 return true;
             } catch (error) {
-                dataLoadingMessage.textContent = "Error CRÍTICO: No se pudieron cargar los datos. Verifique la URL y CORS.";
-                dataLoadingMessage.classList.add('text-red-600');
                 console.error("Fallo al intentar cargar el archivo CSV:", error);
-                affiliateData = []; // Vaciamos los datos si falla
+                affiliateData = []; 
                 return false;
+            }
+        }
+
+        /**
+         * Carga la imagen carnet.png desde la URL y la convierte a Base64.
+         */
+        async function loadCarnetImage() {
+            try {
+                if (CARNET_IMAGE_URL.includes('PLACEHOLDER')) {
+                    // Si no hay URL, el PDF se generará sin imagen de fondo.
+                    console.warn("ADVERTENCIA: URL de la imagen carnet no definida. El PDF no tendrá fondo.");
+                    return true;
+                }
+                
+                const response = await fetch(CARNET_IMAGE_URL);
+                if (!response.ok) throw new Error(`Error ${response.status}`);
+                
+                const blob = await response.blob();
+                carnetBase64Image = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+                
+                console.log("Carnet image loaded successfully.");
+                return true;
+            } catch (error) {
+                console.error("Fallo al cargar la imagen del carnet:", error);
+                // Permite continuar aunque la imagen falle
+                return false; 
             }
         }
 
@@ -255,7 +290,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
         }
 
         /**
-         * Genera y descarga el Carnet PDF (tamaño ID-1).
+         * Genera y descarga el Carnet PDF usando la imagen de fondo y coordenadas.
          */
         function generateCarnetPdf(affiliate) {
             const downloadButton = document.getElementById('download-carnet-pdf-btn');
@@ -274,66 +309,56 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 format: [widthInMM, heightInMM] 
             });
             
-            // Colores
-            const apsBlue = [6, 106, 171]; // #066aab
-            const apsLightBlue = [150, 190, 220]; 
+            // --- 1. IMAGEN DE FONDO (CARNET.PNG) ---
+            if (carnetBase64Image) {
+                // Añade la imagen para que ocupe todo el espacio ID-1
+                pdf.addImage(carnetBase64Image, 'PNG', 0, 0, widthInMM, heightInMM); 
+            } else {
+                // Fondo blanco si no se pudo cargar la imagen
+                pdf.setFillColor(255, 255, 255); 
+                pdf.rect(0, 0, widthInMM, heightInMM, 'F');
+                pdf.setFontSize(10);
+                pdf.text("ADVERTENCIA: No hay imagen de carnet.", 5, 5);
+            }
             
-            // 1. FONDO (Blanco)
-            pdf.setFillColor(255, 255, 255); 
-            pdf.rect(0, 0, widthInMM, heightInMM, 'F');
+            // --- 2. COLOCACIÓN DE DATOS CON COORDENADAS ESCALADAS ---
             
-            // 2. LOGO MOCKUP
-            pdf.setFont('helvetica', 'bold');
-            pdf.setTextColor(apsLightBlue[0], apsLightBlue[1], apsLightBlue[2]); 
-            pdf.setFontSize(18);
-            pdf.text('ARS', 7, 7); 
-            pdf.setFontSize(30);
-            pdf.text('APS', 7, 18); 
+            // Asunción de la dimensión de la imagen de origen (carnet.png) para la escala: 
+            // Max X visible es 900, Max Y es 638. Usaremos 1000x700 px para la escala.
+            const TEMPLATE_WIDTH_PX = 1000;
+            const TEMPLATE_HEIGHT_PX = 700;
             
-            // 3. DIBUJAR LOS DATOS
-            pdf.setTextColor(0, 0, 0); 
-            pdf.setFontSize(12);
+            // Factores de escala para pasar de píxeles a milímetros
+            const scaleX = widthInMM / TEMPLATE_WIDTH_PX; 
+            const scaleY = heightInMM / TEMPLATE_HEIGHT_PX; 
 
-            // Nombre
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('Nombre', 7, 30);
-            pdf.setFont('helvetica', 'normal');
-            pdf.text(affiliate.Nombre, 7, 36);
+            pdf.setTextColor(0, 0, 0); // Color de texto negro (asumiendo que el fondo es claro)
+            pdf.setFont('helvetica', 'normal'); // Usamos normal para los datos
+            pdf.setFontSize(8); // Tamaño de fuente en puntos
 
-            // Póliza
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('Póliza', 7, 46);
-            pdf.setFont('helvetica', 'normal');
-            pdf.text(affiliate.Poliza, 7, 52);
+            const dataFields = {
+                Nombre: affiliate.Nombre,
+                Cedula: affiliate.Cedula,
+                NSS: affiliate.NSS,
+                Poliza: affiliate.Poliza,
+                FechaNacimiento: affiliate.FechaNacimiento
+            };
 
-            // Cédula
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('Cédula:', 55, 10);
-            pdf.setFont('helvetica', 'normal');
-            pdf.text(affiliate.Cedula, 70, 10);
+            for (const key in COORDINATES) {
+                // Las coordenadas proporcionadas son: [X_PIXEL, Y_PIXEL]
+                const [x_px_coord, y_px_coord] = COORDINATES[key];
+                
+                // Conversión de píxeles a milímetros
+                let x_mm = x_px_coord * scaleX;
+                // La coordenada Y debe invertirse si se midió desde el borde superior de la imagen
+                let y_mm = y_px_coord * scaleY; 
+                
+                // Agregar un pequeño offset manual para corregir el origen del texto de jsPDF
+                // Si la coordenada es la base de la línea de texto, el texto aparece justo.
+                
+                pdf.text(dataFields[key], x_mm, y_mm);
+            }
 
-            // NSS
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('NSS:', 55, 16);
-            pdf.setFont('helvetica', 'normal');
-            pdf.text(affiliate.NSS, 70, 16);
-
-            // Fecha Nacimiento
-            pdf.setFont('helvetica', 'bold');
-            pdf.text('Fecha Nac.', 55, 46);
-            pdf.setFont('helvetica', 'normal');
-            pdf.text(affiliate.FechaNacimiento, 55, 52);
-
-            // 4. PIE DE PÁGINA
-            pdf.setFontSize(8);
-            pdf.setTextColor(0, 0, 0); 
-            pdf.text('PRESENTAR JUNTO A ESTE CARNET SU DOCUMENTO DE IDENTIDAD', widthInMM / 2, heightInMM - 3, { align: 'center' });
-
-            // 5. MOCKUP QR CODE 
-            const qrSize = 15;
-            pdf.setFillColor(0, 0, 0);
-            pdf.rect(widthInMM - qrSize - 3, heightInMM - qrSize - 3, qrSize, qrSize, 'S'); 
-            
             // Descargar el archivo
             pdf.save(`Carnet_APS_${affiliate.Cedula}.pdf`);
 
@@ -344,18 +369,35 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
 
 
         document.addEventListener('DOMContentLoaded', async function () {
-            // 1. Cargar los datos antes de cualquier acción.
-            const dataLoaded = await loadAffiliateData();
+            // 1. Cargar datos del CSV y la imagen del carnet en paralelo
+            const [dataLoaded, imageLoaded] = await Promise.all([
+                loadAffiliateData(), 
+                loadCarnetImage()
+            ]);
 
-            if (dataLoaded && affiliateData.length > 0) {
+            let statusMessage = "";
+            let canProceed = true;
+
+            if (!dataLoaded || affiliateData.length === 0) {
+                statusMessage += "Error: No se cargaron datos de afiliación válidos. ";
+                dataLoadingMessage.classList.add('text-red-600');
+                canProceed = false;
+            }
+            
+            if (!imageLoaded) {
+                 statusMessage += "Advertencia: La plantilla de imagen del carnet falló al cargar. ";
+                 dataLoadingMessage.classList.add('text-orange-600');
+            }
+
+            if (canProceed) {
+                statusMessage = "Datos y plantilla listos. Puede proceder a la validación.";
+                dataLoadingMessage.classList.remove('text-red-600', 'text-orange-600');
+                dataLoadingMessage.classList.add('text-green-600');
                 submitButton.disabled = false;
                 submitButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
                 submitButton.classList.add('bg-aps-blue', 'hover:bg-aps-blue-hover');
-            } else if (dataLoaded) {
-                 // Si la carga fue exitosa pero no hay registros
-                 dataLoadingMessage.textContent = "Advertencia: Archivo CSV cargado, pero no contiene registros válidos.";
-                 dataLoadingMessage.classList.add('text-orange-600');
             }
+            dataLoadingMessage.textContent = statusMessage;
 
 
             const loginScreen = document.getElementById('carnet-login-screen');
@@ -370,6 +412,11 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 e.preventDefault();
                 errorMessage.classList.add('hidden'); 
                 
+                if (!canProceed) {
+                    alert("Error: No se pudo cargar la data. No se puede validar.");
+                    return;
+                }
+
                 const cedula = document.getElementById('cedula-carnet').value.trim();
                 const poliza = document.getElementById('poliza-carnet').value.trim();
                 const fechaNacimiento = document.getElementById('fecha-nacimiento-carnet').value.trim();
@@ -413,5 +460,3 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
     </script>
 </body>
 </html>
-
-
