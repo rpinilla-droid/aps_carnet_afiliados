@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APS Salud - Descarga de Carnet</title>
+    <title>ARS APS - Descarga de Carnet Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -11,7 +11,6 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .carnet-info { font-weight: 500; } /* Estilo para los datos cargados */
     </style>
 </head>
 <body class="bg-gray-100">
@@ -20,12 +19,13 @@
 
         <div id="login-screen" class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
             <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
-                <div class="text-center">
-                    <h1 class="text-3xl font-bold text-blue-600">APS Salud</h1>
-                    <p class="mt-2 text-lg text-gray-600">Descarga de Carnet Digital</p>
+                <div class="text-center mb-6">
+                    <img src="https://apsars.do/wp-content/uploads/2023/07/logo-ARS-Web-1-1.png" alt="ARS APS Logo" class="h-10 mx-auto mb-4">
+                    <h1 class="text-xl font-semibold text-blue-600">ARS APS</h1>
+                    <p class="mt-1 text-base text-gray-600">Descarga de Carnet Digital</p>
                 </div>
                 
-                <form id="login-form" class="mt-8 space-y-6">
+                <form id="login-form" class="space-y-6">
                     <div>
                         <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
                         <input id="cedula" name="cedula" type="text" required
@@ -65,25 +65,17 @@
             <div class="max-w-xl w-full bg-white rounded-xl shadow-lg p-8 text-center">
                 <h2 class="text-2xl font-bold text-green-600 mb-6">✅ Datos Validados Correctamente</h2>
                 
-                <p class="text-gray-700 mb-4">Se ha encontrado su registro de afiliación. A continuación, puede descargar su carnet digital en formato PDF.</p>
+                <p class="text-gray-700 mb-4">Su registro de afiliación ha sido encontrado. Proceda a descargar su carnet digital.</p>
                 
-                <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-xl shadow-2xl p-6 mb-6 text-left">
-                    <p class="text-sm opacity-70">Afiliado:</p>
-                    <h3 id="carnet-display-nombre" class="text-xl font-bold"></h3>
-                    <div class="mt-4 flex justify-between text-sm">
-                        <div>
-                            <p class="opacity-70">Cédula:</p>
-                            <p id="carnet-display-cedula" class="carnet-info"></p>
-                        </div>
-                        <div>
-                            <p class="opacity-70">Póliza:</p>
-                            <p id="carnet-display-poliza" class="carnet-info"></p>
-                        </div>
-                        <div>
-                            <p class="opacity-70">Fecha Nac:</p>
-                            <p id="carnet-display-fecha-nac" class="carnet-info"></p>
-                        </div>
-                    </div>
+                <div class="bg-blue-50 p-6 rounded-xl border border-blue-200 mb-6 text-left">
+                    <p class="text-sm text-blue-800 font-bold mb-2">Datos a imprimir:</p>
+                    <ul class="text-gray-700 space-y-1 text-sm">
+                        <li><span class="font-semibold">Nombre:</span> <span id="carnet-display-nombre"></span></li>
+                        <li><span class="font-semibold">Cédula:</span> <span id="carnet-display-cedula"></span></li>
+                        <li><span class="font-semibold">Póliza:</span> <span id="carnet-display-poliza"></span></li>
+                        <li><span class="font-semibold">Fecha Nac:</span> <span id="carnet-display-fecha-nac"></span></li>
+                        <li><span class="font-semibold">NSS:</span> <span id="carnet-display-nss"></span></li>
+                    </ul>
                 </div>
 
                 <button id="download-carnet-pdf" class="w-full py-3 px-4 rounded-lg text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-colors flex items-center justify-center">
@@ -113,34 +105,29 @@
             const backToLoginButton = document.getElementById('back-to-login');
             const pdfLoadingMessage = document.getElementById('pdf-loading-message');
             
-            // Almacenará el registro del afiliado validado
             let validatedAffiliateData = null;
-            let affiliateData = []; // Para almacenar todos los datos del CSV
+            let affiliateData = [];
             
             // Ruta a la imagen del carnet (debe estar en el mismo directorio)
             const CARNET_IMAGE_PATH = 'carnet.png';
             
-            // Coordenadas iniciales para los campos (X en horizontal, Y en vertical)
-            // La escala es de Puntos (pt). jsPDF usa 72 pt/pulgada.
-            // Para dibujar sobre el carnet.png (1280x853px), necesitamos escalarlas.
-            // Usaremos la imagen como referencia y escalaremos para ajustarse al formato de la imagen.
+            // COORDENADAS: (X, Y) en píxeles de la imagen carnet.png (1280x853px)
+            // Se usará para calcular la posición en el PDF.
+            const COORDINATES = {
+                Nombre: [40, 408],
+                Cedula: [1079, 79],
+                NSS: [1079, 160],
+                Poliza: [46, 656],
+                FechaNacimiento: [687, 649]
+            };
             
-            // Coordenadas originales de su imagen de 1280x853px (aproximadamente):
-            // (40, 408) - Nombre
-            // (1079, 79) - Cédula
-            // (1079, 160) - NSS
-            // (46, 656) - Póliza
-            // (687, 649) - Fecha Nac.
-
-            // Definición de las coordenadas y estilos para jsPDF (en mm)
-            // Usamos un formato estándar de tarjeta de 85.6mm x 53.98mm (ID-1)
+            // Formato estándar de carnet (ID-1) en landscape: 85.6mm x 53.98mm
             const PDF_WIDTH_MM = 85.6; 
             const PDF_HEIGHT_MM = 53.98;
-            const TEXT_SIZE = 6; // Tamaño de fuente en puntos
-            const SCALE_FACTOR_X = PDF_WIDTH_MM / 1280; // Factor de escala para X
-            const SCALE_FACTOR_Y = PDF_HEIGHT_MM / 853; // Factor de escala para Y (aproximado)
-            
+            const TEXT_SIZE = 7; // Tamaño de fuente en puntos
+
             // Función de ayuda para calcular coordenadas en mm
+            // La imagen carnet.png parece ser de 1280px x 853px
             const mmX = (px) => px * (PDF_WIDTH_MM / 1280);
             const mmY = (px) => px * (PDF_HEIGHT_MM / 853);
 
@@ -164,16 +151,14 @@
                         const values = line.split(';');
                         const record = {};
                         headers.forEach((header, i) => {
-                            // Almacenamos los datos, quitando espacios
                             record[header] = values[i] ? values[i].trim() : '';
                         });
                         return record;
                     });
                     
-                    console.log("Datos de afiliados cargados:", affiliateData);
                 } catch (error) {
                     console.error("Error al cargar o procesar el CSV:", error);
-                    alert("Error al cargar la base de datos de afiliados. Consulte la consola.");
+                    alert("Error al cargar la base de datos de afiliados. Asegúrese de que 'afiliados.csv' existe.");
                 }
             }
 
@@ -187,15 +172,15 @@
             loginForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 
-                const cedula = document.getElementById('cedula').value.trim();
-                const poliza = document.getElementById('poliza').value.trim();
-                const fechaNacimiento = document.getElementById('fecha-nacimiento').value.trim();
+                const inputCedula = document.getElementById('cedula').value.trim();
+                const inputPoliza = document.getElementById('poliza').value.trim();
+                const inputFechaNacimiento = document.getElementById('fecha-nacimiento').value.trim();
                 
-                // Buscar el afiliado que coincida con los 3 campos
+                // Buscar el afiliado que coincida con los 3 campos (comparación estricta)
                 const foundAffiliate = affiliateData.find(affiliate => 
-                    affiliate.Cedula === cedula && 
-                    affiliate.Poliza === poliza && 
-                    affiliate.FechaNacimiento === fechaNacimiento
+                    affiliate.Cedula === inputCedula && 
+                    affiliate.Poliza === inputPoliza && 
+                    affiliate.FechaNacimiento === inputFechaNacimiento
                 );
 
                 if (foundAffiliate) {
@@ -208,6 +193,7 @@
                     document.getElementById('carnet-display-cedula').textContent = foundAffiliate.Cedula;
                     document.getElementById('carnet-display-poliza').textContent = foundAffiliate.Poliza;
                     document.getElementById('carnet-display-fecha-nac').textContent = foundAffiliate.FechaNacimiento;
+                    document.getElementById('carnet-display-nss').textContent = foundAffiliate.NSS;
                     
                     // Mostrar pantalla de carnet
                     loginScreen.style.display = 'none';
@@ -236,7 +222,7 @@
 
                 // Necesitamos cargar la imagen primero
                 const img = new Image();
-                img.crossOrigin = 'Anonymous'; // Necesario para CORS en algunos navegadores
+                img.crossOrigin = 'Anonymous'; 
                 img.src = CARNET_IMAGE_PATH;
 
                 img.onload = function() {
@@ -245,7 +231,7 @@
                         const pdf = new jsPDF({
                             orientation: 'landscape', // Horizontal
                             unit: 'mm',
-                            format: [PDF_WIDTH_MM, PDF_HEIGHT_MM] // 85.6mm x 54mm
+                            format: [PDF_WIDTH_MM, PDF_HEIGHT_MM]
                         });
 
                         // 1. Añadir la imagen de fondo (el carnet.png)
@@ -255,7 +241,7 @@
                             0, 
                             0, 
                             PDF_WIDTH_MM, 
-                            PDF_HEIGHT_MM // Ocupa el 100% del lienzo
+                            PDF_HEIGHT_MM 
                         );
 
                         // 2. Definir estilos de texto
@@ -266,23 +252,23 @@
                         // 3. Escribir los datos en las coordenadas transformadas
                         const data = validatedAffiliateData;
 
-                        // Nombre (40, 408)
-                        pdf.text(data.Nombre, mmX(40), mmY(408)); 
+                        // Nombre (40, 408) - Alineado a la izquierda
+                        pdf.text(data.Nombre, mmX(COORDINATES.Nombre[0]), mmY(COORDINATES.Nombre[1])); 
 
-                        // Cédula (1079, 79)
-                        pdf.text(data.Cedula, mmX(1079), mmY(79), { align: 'right' }); 
+                        // Cédula (1079, 79) - Alineado a la derecha
+                        pdf.text(data.Cedula, mmX(COORDINATES.Cedula[0]), mmY(COORDINATES.Cedula[1]), { align: 'right' }); 
                         
-                        // NSS (1079, 160)
-                        pdf.text(data.NSS, mmX(1079), mmY(160), { align: 'right' }); 
+                        // NSS (1079, 160) - Alineado a la derecha
+                        pdf.text(data.NSS, mmX(COORDINATES.NSS[0]), mmY(COORDINATES.NSS[1]), { align: 'right' }); 
                         
-                        // Póliza (46, 656)
-                        pdf.text(data.Poliza, mmX(46), mmY(656)); 
+                        // Póliza (46, 656) - Alineado a la izquierda
+                        pdf.text(data.Poliza, mmX(COORDINATES.Poliza[0]), mmY(COORDINATES.Poliza[1])); 
                         
-                        // Fecha Nac. (687, 649)
-                        pdf.text(data.FechaNacimiento, mmX(687), mmY(649));
+                        // Fecha Nac. (687, 649) - Alineado a la izquierda
+                        pdf.text(data.FechaNacimiento, mmX(COORDINATES.FechaNacimiento[0]), mmY(COORDINATES.FechaNacimiento[1]));
 
                         // 4. Descargar el archivo
-                        pdf.save(`Carnet_APS_${data.Cedula}.pdf`);
+                        pdf.save(`Carnet_ARS_APS_${data.Cedula}.pdf`);
 
                         // 5. Restaurar botón
                         restoreDownloadButton();
@@ -319,6 +305,7 @@
                 loginScreen.style.display = 'flex';
                 validatedAffiliateData = null; // Limpiar datos validados
                 loginForm.reset();
+                loginErrorMessage.classList.add('hidden'); // Ocultar mensaje de error
             });
 
         });
