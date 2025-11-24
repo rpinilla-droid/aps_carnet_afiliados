@@ -109,7 +109,8 @@
                         </button>
                     </div>
                 </form>
-            </div> </div>
+            </div> 
+        </div>
     </div>
     
     <div id="carnet-screen" class="hidden min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -161,10 +162,11 @@
             const CARNET_IMAGE_PATH = 'carnet.png';
             
             // COORDENADAS: (X, Y) en píxeles de la imagen carnet.png (1280x853px)
+            // AJUSTE: Cédula y NSS ajustados a X=800 para alineación a la izquierda.
             const COORDINATES = {
                 Nombre: [40, 408],
-                Cedula: [1079, 79],
-                NSS: [1079, 160],
+                Cedula: [800, 79],
+                NSS: [800, 160],
                 Poliza: [46, 656],
                 FechaNacimiento: [687, 649]
             };
@@ -277,22 +279,22 @@
                             PDF_HEIGHT_MM 
                         );
 
-                        // 2. Definir estilos de texto
-                        pdf.setFont('helvetica');
+                        // 2. Definir estilos de texto (AJUSTADO: Color y Negrita)
+                        pdf.setFont('helvetica', 'bold'); // FUENTE EN NEGRITA
                         pdf.setFontSize(TEXT_SIZE);
-                        pdf.setTextColor(0, 0, 0); // Negro
+                        pdf.setTextColor(3, 100, 152); // Color #036498
 
-                        // 3. Escribir los datos en las coordenadas transformadas
+                        // 3. Escribir los datos en las coordenadas transformadas (AJUSTADO: Coordenadas de Cédula y NSS)
                         const data = validatedAffiliateData;
 
                         // Nombre (40, 408) - Izquierda
                         pdf.text(data.Nombre, mmX(COORDINATES.Nombre[0]), mmY(COORDINATES.Nombre[1])); 
 
-                        // Cédula (1079, 79) - Derecha
-                        pdf.text(data.Cedula, mmX(COORDINATES.Cedula[0]), mmY(COORDINATES.Cedula[1]), { align: 'right' }); 
+                        // Cédula (800, 79) - Izquierda (Alineación ajustada)
+                        pdf.text(data.Cedula, mmX(COORDINATES.Cedula[0]), mmY(COORDINATES.Cedula[1]), { align: 'left' }); 
                         
-                        // NSS (1079, 160) - Derecha
-                        pdf.text(data.NSS, mmX(COORDINATES.NSS[0]), mmY(COORDINATES.NSS[1]), { align: 'right' }); 
+                        // NSS (800, 160) - Izquierda (Alineación ajustada)
+                        pdf.text(data.NSS, mmX(COORDINATES.NSS[0]), mmY(COORDINATES.NSS[1]), { align: 'left' }); 
                         
                         // Póliza (46, 656) - Izquierda
                         pdf.text(data.Poliza, mmX(COORDINATES.Poliza[0]), mmY(COORDINATES.Poliza[1])); 
