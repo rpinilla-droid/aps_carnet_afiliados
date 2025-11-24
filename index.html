@@ -207,15 +207,15 @@
 
         /**
          * Simula la carga de datos desde el archivo afiliados.csv.
-         * ESTA SECCIÓN CONTIENE TODOS LOS REGISTROS PARA LA VALIDACIÓN.
          */
         async function loadAffiliateData() {
+            // SIMULACIÓN DEL CONTENIDO DE afiliados.csv
             const csvContent = `CRISTIAN AGUSTIN ULLOA MARTINEZ;001-0219588-0;2434133;00525-00018-04;13/06/1974
 YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             
             try {
                 affiliateData = parseCSV(csvContent);
-                console.log('Datos de afiliados cargados y parseados correctamente para validación:', affiliateData);
+                console.log('Datos de afiliados cargados y parseados correctamente.', affiliateData);
             } catch (error) {
                 console.error("Error al cargar o procesar el CSV simulado:", error);
             }
@@ -247,8 +247,9 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             const pdfLoadingMessage = document.getElementById('pdf-loading-message');
 
 
-            // --- LÓGICA DE LOGIN (VALIDACIÓN DE TODOS LOS REGISTROS) ---
+            // --- LÓGICA DE LOGIN ---
 
+            // Simular Login
             loginForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 
@@ -256,13 +257,12 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 const poliza = document.getElementById('poliza').value.trim();
                 const fechaNacimiento = document.getElementById('fecha-nacimiento').value.trim();
 
-                // *** ESTA FUNCIÓN BUSCA COINCIDENCIA EN TODOS LOS REGISTROS DE affiliateData ***
+                // Busca la coincidencia de los 3 campos en el array de datos
                 loggedInAffiliate = affiliateData.find(affiliate => 
                     affiliate.Cedula === cedula && 
                     affiliate.Poliza === poliza && 
                     affiliate.FechaNacimiento === fechaNacimiento
                 );
-                // ********************************************************************************
 
                 if (loggedInAffiliate) {
                     // 1. Actualizar el carnet con los datos del afiliado
@@ -270,7 +270,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
 
                     // 2. Transición de pantallas
                     loginScreen.style.display = 'none';
-                    confirmationScreen.style.display = 'flex'; 
+                    confirmationScreen.style.display = 'flex'; // Usamos flex para centrar
                 } else {
                     alert('Credenciales no válidas. Por favor, verifique Cédula, Póliza y Fecha de Nacimiento.');
                 }
@@ -300,7 +300,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
 
                 // Usamos html2canvas para renderizar el DIV del carnet como una imagen
                 html2canvas(carnetCard, { 
-                    scale: 3, 
+                    scale: 3, // Aumenta la resolución
                     useCORS: true 
                 }).then(canvas => {
                     const imgData = canvas.toDataURL('image/png');
@@ -309,7 +309,8 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                     const widthInMM = 85.6;
                     const heightInMM = 53.98;
                     
-                    // Inicializa jsPDF en modo horizontal (landscape)
+                    // Inicializa jsPDF en modo horizontal (landscape), especificando el tamaño del carnet
+                    // Se agrega un margen de 4mm (2mm a cada lado)
                     const pdf = new jsPDF('l', 'mm', [widthInMM + 4, heightInMM + 4]); 
                     const pdfWidth = pdf.internal.pageSize.getWidth();
                     const pdfHeight = pdf.internal.pageSize.getHeight();
