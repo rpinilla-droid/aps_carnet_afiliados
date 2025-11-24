@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APS Salud - Portal de Afiliados</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script> <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         /* Definición del color corporativo: #066aab */
@@ -104,21 +103,21 @@
                             <label for="cedula-carnet" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
                             <input id="cedula-carnet" name="cedula" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                                placeholder="001-0000000-0">
+                                placeholder="001-0000000-0" value="001-0219588-0">
                         </div>
 
                         <div>
                             <label for="poliza-carnet" class="block text-sm font-medium text-gray-700">Código de Póliza</label>
                             <input id="poliza-carnet" name="poliza" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                                placeholder="123456-01">
+                                placeholder="123456-01" value="00525-00018-04">
                         </div>
                         
                         <div>
                             <label for="fecha-nacimiento-carnet" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (DD/MM/AAAA)</label>
                             <input id="fecha-nacimiento-carnet" name="fecha-nacimiento" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                                placeholder="Ej: 15/05/1985">
+                                placeholder="Ej: 15/05/1985" value="13/06/1974">
                         </div>
                         
                         <div id="carnet-error-message" class="hidden text-sm text-red-600 text-center font-medium">
@@ -165,7 +164,7 @@
 
                     <button id="download-carnet-pdf-btn" 
                             class="w-full py-3 px-4 rounded-lg text-base font-medium text-white 
-                                   bg-aps-blue hover:bg-aps-blue-hover transition-colors 
+                                   bg-green-600 hover:bg-green-700 transition-colors 
                                    flex items-center justify-center">
                         <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                         Descargar Carnet PDF
@@ -180,10 +179,17 @@
                 </div>
             </div>
         </div>
-    </div> <script>
-        const { jsPDF } = window.jspdf; 
+    </div> 
 
-        // Variables globales para datos de afiliados
+    <script>
+        const { jsPDF } = window.jspdf; 
+        
+        // ** DATOS DEL CSV SIMULADO (afiliados.csv) **
+        // Se incluyen ambos registros para asegurar la validación completa.
+        const csvContent = `Nombre;Cedula;NSS;Poliza;FechaNacimiento
+CRISTIAN AGUSTIN ULLOA MARTINEZ;001-0219588-0;2434133;00525-00018-04;13/06/1974
+YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
+        
         let affiliateData = [];
         let loggedInAffiliate = null;
 
@@ -192,10 +198,10 @@
          */
         function parseCSV(csvText) {
             const lines = csvText.trim().split('\n');
-            // Mapeo basado en el orden de las columnas: Nombre;Cedula;NSS;Poliza;FechaNacimiento
             const keys = ["Nombre", "Cedula", "NSS", "Poliza", "FechaNacimiento"]; 
             
-            return lines.map(line => {
+            // Ignorar la primera línea (cabecera)
+            return lines.slice(1).map(line => {
                 const values = line.split(';');
                 const affiliate = {};
                 keys.forEach((key, i) => {
@@ -206,55 +212,132 @@
         }
 
         /**
-         * Simula la carga de datos desde el archivo afiliados.csv.
-         * ESTA SECCIÓN CONTIENE TODOS LOS REGISTROS PARA LA VALIDACIÓN.
+         * Carga y parsea todos los datos del CSV simulado.
          */
-        async function loadAffiliateData() {
-            const csvContent = `CRISTIAN AGUSTIN ULLOA MARTINEZ;001-0219588-0;2434133;00525-00018-04;13/06/1974
-YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
-            
-            try {
-                affiliateData = parseCSV(csvContent);
-                console.log('Datos de afiliados cargados y parseados correctamente para validación:', affiliateData);
-            } catch (error) {
-                console.error("Error al cargar o procesar el CSV simulado:", error);
-            }
+        function loadAffiliateData() {
+            affiliateData = parseCSV(csvContent);
+            console.log("Datos de afiliados cargados:", affiliateData);
         }
 
         /**
-         * Actualiza los campos del carnet con los datos del afiliado logueado.
+         * Actualiza los campos de la pantalla de confirmación.
          */
-        function updateCarnet(affiliate) {
-            document.getElementById('carnet-nombre-afiliado').textContent = affiliate.Nombre; 
-            document.getElementById('carnet-cedula').textContent = affiliate.Cedula; 
-            document.getElementById('carnet-poliza').textContent = affiliate.Poliza; 
+        function updateConfirmationScreen(affiliate) {
+            document.getElementById('portal-display-nombre').textContent = affiliate.Nombre; 
+            document.getElementById('portal-display-cedula').textContent = affiliate.Cedula; 
+            document.getElementById('portal-display-nss').textContent = affiliate.NSS; 
+            document.getElementById('portal-display-poliza').textContent = affiliate.Poliza; 
+            document.getElementById('portal-display-fecha-nac').textContent = affiliate.FechaNacimiento; 
+        }
+
+        /**
+         * Genera y descarga el Carnet PDF (tamaño ID-1), imitando la maqueta.
+         */
+        function generateCarnetPdf(affiliate) {
+            const downloadButton = document.getElementById('download-carnet-pdf-btn');
+            const loadingMessage = document.getElementById('pdf-loading-message-carnet');
+
+            downloadButton.disabled = true;
+            loadingMessage.classList.remove('hidden');
+
+            // Dimensiones ID-1 (Carnet) en mm: 85.6 x 53.98.
+            const widthInMM = 85.6;
+            const heightInMM = 53.98;
+
+            const pdf = new jsPDF({
+                orientation: 'l', // Horizontal
+                unit: 'mm',
+                format: [widthInMM, heightInMM] 
+            });
+            
+            // Colores
+            const apsBlue = [6, 106, 171]; // #066aab
+            const apsLightBlue = [150, 190, 220]; 
+            
+            // 1. FONDO (Blanco)
+            pdf.setFillColor(255, 255, 255); 
+            pdf.rect(0, 0, widthInMM, heightInMM, 'F');
+            
+            // 2. LOGO MOCKUP (Mockup de la imagen carnet.png)
+            pdf.setFont('helvetica', 'bold');
+            pdf.setTextColor(apsLightBlue[0], apsLightBlue[1], apsLightBlue[2]); 
+            pdf.setFontSize(18);
+            pdf.text('ARS', 7, 7); 
+            pdf.setFontSize(30);
+            pdf.text('APS', 7, 18); 
+            
+            // 3. DIBUJAR LOS DATOS (usando las posiciones de la maqueta image_59b020.png)
+            pdf.setTextColor(0, 0, 0); // Texto en negro
+            pdf.setFontSize(12);
+
+            // Nombre
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Nombre', 7, 30);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(affiliate.Nombre, 7, 36);
+
+            // Póliza
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Póliza', 7, 46);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(affiliate.Poliza, 7, 52);
+
+            // Cédula
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Cédula:', 55, 10);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(affiliate.Cedula, 70, 10);
+
+            // NSS
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('NSS:', 55, 16);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(affiliate.NSS, 70, 16);
+
+            // Fecha Nacimiento
+            pdf.setFont('helvetica', 'bold');
+            pdf.text('Fecha Nac.', 55, 46);
+            pdf.setFont('helvetica', 'normal');
+            pdf.text(affiliate.FechaNacimiento, 55, 52);
+
+            // 4. PIE DE PÁGINA
+            pdf.setFontSize(8);
+            pdf.setTextColor(0, 0, 0); 
+            pdf.text('PRESENTAR JUNTO A ESTE CARNET SU DOCUMENTO DE IDENTIDAD', widthInMM / 2, heightInMM - 3, { align: 'center' });
+
+            // 5. MOCKUP QR CODE (En la esquina inferior derecha)
+            const qrSize = 15;
+            pdf.setFillColor(0, 0, 0);
+            // Dibujar el contorno del QR para simular su presencia
+            pdf.rect(widthInMM - qrSize - 3, heightInMM - qrSize - 3, qrSize, qrSize, 'S'); 
+            
+            // Descargar el archivo
+            pdf.save(`Carnet_APS_${affiliate.Cedula}.pdf`);
+
+            // Restaurar estado
+            downloadButton.disabled = false;
+            loadingMessage.classList.add('hidden');
         }
 
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Cargar los datos del CSV simulado al inicio
             loadAffiliateData();
 
-            // Elementos de pantalla
             const loginScreen = document.getElementById('carnet-login-screen');
             const confirmationScreen = document.getElementById('carnet-confirmation-screen');
-            const loginForm = document.getElementById('login-form');
-            const logoutButton = document.getElementById('logout-button');
-            
-            // Elementos de PDF
-            const downloadCarnetPdfButton = document.getElementById('download-carnet-pdf');
-            const carnetCard = document.getElementById('carnet-card');
-            const pdfLoadingMessage = document.getElementById('pdf-loading-message');
+            const loginForm = document.getElementById('login-form-carnet');
+            const errorMessage = document.getElementById('carnet-error-message');
+            const backToLoginButton = document.getElementById('back-to-login-carnet');
+            const downloadPdfButton = document.getElementById('download-carnet-pdf-btn');
 
-
-            // --- LÓGICA DE LOGIN (VALIDACIÓN DE TODOS LOS REGISTROS) ---
-
+            // --- LÓGICA DE LOGIN ---
             loginForm.addEventListener('submit', function (e) {
                 e.preventDefault();
+                errorMessage.classList.add('hidden'); // Ocultar errores anteriores
                 
-                const cedula = document.getElementById('cedula').value.trim();
-                const poliza = document.getElementById('poliza').value.trim();
-                const fechaNacimiento = document.getElementById('fecha-nacimiento').value.trim();
+                const cedula = document.getElementById('cedula-carnet').value.trim();
+                const poliza = document.getElementById('poliza-carnet').value.trim();
+                const fechaNacimiento = document.getElementById('fecha-nacimiento-carnet').value.trim();
 
                 // *** ESTA FUNCIÓN BUSCA COINCIDENCIA EN TODOS LOS REGISTROS DE affiliateData ***
                 loggedInAffiliate = affiliateData.find(affiliate => 
@@ -265,79 +348,34 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 // ********************************************************************************
 
                 if (loggedInAffiliate) {
-                    // 1. Actualizar el carnet con los datos del afiliado
-                    updateCarnet(loggedInAffiliate);
-
-                    // 2. Transición de pantallas
+                    // Éxito:
+                    updateConfirmationScreen(loggedInAffiliate);
                     loginScreen.style.display = 'none';
                     confirmationScreen.style.display = 'flex'; 
                 } else {
-                    alert('Credenciales no válidas. Por favor, verifique Cédula, Póliza y Fecha de Nacimiento.');
+                    // Error 
+                    errorMessage.classList.remove('hidden'); 
                 }
             });
 
-            // Simular Logout (Volver al login)
-            logoutButton.addEventListener('click', function (e) {
-                e.preventDefault();
+            // --- LÓGICA DE VOLVER AL INICIO/CERRAR SESIÓN ---
+            backToLoginButton.addEventListener('click', function () {
                 loggedInAffiliate = null; 
                 confirmationScreen.style.display = 'none';
                 loginScreen.style.display = 'flex'; 
+                errorMessage.classList.add('hidden');
+                loginForm.reset(); // Limpiar el formulario
             });
-
 
             // --- LÓGICA DE DESCARGA DE PDF ---
-            downloadCarnetPdfButton.addEventListener('click', function () {
-                if (!loggedInAffiliate) {
-                    alert("Debe iniciar sesión para descargar el carnet.");
-                    return;
+            downloadPdfButton.addEventListener('click', function () {
+                if (loggedInAffiliate) {
+                    generateCarnetPdf(loggedInAffiliate);
+                } else {
+                    alert("No hay datos de afiliado para descargar.");
                 }
-                
-                // Deshabilitar botón y mostrar mensaje de carga
-                downloadCarnetPdfButton.disabled = true;
-                downloadCarnetPdfButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-                downloadCarnetPdfButton.classList.add('bg-gray-400');
-                pdfLoadingMessage.classList.remove('hidden');
-
-                // Usamos html2canvas para renderizar el DIV del carnet como una imagen
-                html2canvas(carnetCard, { 
-                    scale: 3, 
-                    useCORS: true 
-                }).then(canvas => {
-                    const imgData = canvas.toDataURL('image/png');
-                    
-                    // Dimensiones ID-1 (Carnet) en mm: 85.6 x 53.98.
-                    const widthInMM = 85.6;
-                    const heightInMM = 53.98;
-                    
-                    // Inicializa jsPDF en modo horizontal (landscape)
-                    const pdf = new jsPDF('l', 'mm', [widthInMM + 4, heightInMM + 4]); 
-                    const pdfWidth = pdf.internal.pageSize.getWidth();
-                    const pdfHeight = pdf.internal.pageSize.getHeight();
-                    
-                    // Añade la imagen capturada al PDF con un margen de 2mm
-                    pdf.addImage(imgData, 'PNG', 2, 2, pdfWidth - 4, pdfHeight - 4); 
-
-                    // Descargar el archivo
-                    pdf.save(`Carnet_APS_${loggedInAffiliate.Cedula}.pdf`);
-
-                    // Restaurar botón y ocultar mensaje de carga
-                    downloadCarnetPdfButton.disabled = false;
-                    downloadCarnetPdfButton.classList.remove('bg-gray-400');
-                    downloadCarnetPdfButton.classList.add('bg-green-600', 'hover:bg-green-700');
-                    pdfLoadingMessage.classList.add('hidden');
-                }).catch(error => {
-                    console.error("Error al generar el PDF:", error);
-                    alert("Ocurrió un error al generar el PDF. Por favor, intente de nuevo.");
-                    // Restaurar botón en caso de error
-                    downloadCarnetPdfButton.disabled = false;
-                    downloadCarnetPdfButton.classList.remove('bg-gray-400');
-                    downloadCarnetPdfButton.classList.add('bg-green-600', 'hover:bg-green-700');
-                    pdfLoadingMessage.classList.add('hidden');
-                });
             });
-
         });
     </script>
+</body>
 </html>
-
-
