@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APS Salud - Portal de Afiliados</title>
+    <title>APS Salud - Carnet Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,28 +15,19 @@
         /* Definición del color corporativo */
         :root {
             --aps-blue: #066aab;
-            --aps-blue-hover: #055e98; /* Un poco más oscuro para el hover */
+            --aps-blue-hover: #055e98;
         }
-        /* Estilo para la fuente Inter */
+        
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Ocultar secciones por defecto */
-        .content-section {
-            display: none;
-        }
-        /* Estilo para el botón de navegación activo */
-        .nav-link.active {
-            background-color: #e5e7eb; /* gray-200 */
-            color: var(--aps-blue); 
-        }
-        /* Aplicación del color corporativo a Tailwind (para elementos clave) */
+        
+        /* Aplicación del color corporativo */
         .text-aps-blue { color: var(--aps-blue); }
         .bg-aps-blue { background-color: var(--aps-blue); }
         .hover\:bg-aps-blue-hover:hover { background-color: var(--aps-blue-hover); }
         .focus\:ring-aps-blue:focus { --tw-ring-color: var(--aps-blue); }
-
-        /* Ajustes para el login y el botón */
+        
         #login-form input:focus {
             border-color: var(--aps-blue);
         }
@@ -47,7 +38,7 @@
     <div id="login-screen" class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
             <div class="text-center mb-6">
-                <img src="https://apsars.do/wp-content/uploads/2023/07/logo-ARS-Web-1-1.png" alt="ARS APS Logo" class="h-10 mx-auto mb-4">
+                <img src="https://apsars.do/wp-content/uploads/2023/07/logo-ARS-Web-1-1.png" alt="APS Salud Logo" class="h-10 mx-auto mb-4">
                 <h1 class="text-3xl font-bold text-aps-blue">APS Salud</h1>
                 <p class="mt-2 text-lg text-gray-600">Accede a tu portal de Afiliado</p>
             </div>
@@ -82,136 +73,53 @@
                 <div>
                     <button type="submit"
                             class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-aps-blue hover:bg-aps-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue transition-colors">
-                        Acceder al Portal
+                        Validar y Descargar Carnet
                     </button>
                 </div>
             </form>
         </div>
     </div>
     
-    <div id="portal-container" class="hidden min-h-screen lg:flex">
-        
-        <aside class="w-64 bg-white border-r border-gray-200 flex-shrink-0">
-            <div class="p-4 flex items-center h-16 border-b border-gray-200">
-                <img src="https://apsars.do/wp-content/uploads/2023/07/logo-ARS-Web-1-1.png" alt="ARS APS Logo" class="h-8">
-                <span class="ml-3 text-lg font-bold text-gray-900">Portal</span>
-            </div>
-            <nav class="mt-4 space-y-1 p-2">
-                <a href="#" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100 active" data-target="dashboard">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l-7-7m7 7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                    Dashboard
-                </a>
-                <a href="#" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100" data-target="carnet-section">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-4 0h4"></path></svg>
-                    Mi Carnet Digital
-                </a>
-                <a href="#" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100" data-target="dependientes">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    Dependientes
-                </a>
-                <a href="#" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100" data-target="pagos">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.354 2.665.733M12 8V6m0 6v2m0 6v2"></path></svg>
-                    Pagos
-                </a>
-                <a href="#" id="logout-button" class="flex items-center px-4 py-2 text-sm font-medium text-red-600 rounded-lg hover:bg-red-50 mt-4">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3v-4a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    Cerrar Sesión
-                </a>
-            </nav>
-        </aside>
-
-        <main class="flex-1 flex flex-col overflow-hidden">
+    <div id="carnet-screen" class="hidden min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div class="max-w-xl w-full bg-white rounded-xl shadow-lg p-8 text-center">
+            <h2 class="text-2xl font-bold text-green-600 mb-6">✅ Datos Validados Correctamente</h2>
             
-            <header class="w-full bg-white shadow-sm flex items-center justify-between h-16 px-6 border-b border-gray-200">
-                <h2 id="current-title" class="text-xl font-semibold text-gray-900">Dashboard</h2>
-                <div class="flex items-center">
-                    <span id="welcome-name" class="text-gray-700 text-sm font-medium mr-3"></span>
-                    <button class="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue">
-                        <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </button>
-                </div>
-            </header>
-
-            <div class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-                
-                <div id="dashboard" class="content-section">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Resumen General</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white p-6 rounded-xl shadow-md">
-                            <h4 class="text-lg font-medium text-gray-600">Estado de Póliza</h4>
-                            <p class="mt-2 text-3xl font-bold text-green-600">ACTIVA</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-xl shadow-md">
-                            <h4 class="text-lg font-medium text-gray-600">Cita Próxima</h4>
-                            <p class="mt-2 text-2xl font-bold text-yellow-600">No Programada</p>
-                        </div>
-                        <div class="bg-white p-6 rounded-xl shadow-md">
-                            <h4 class="text-lg font-medium text-gray-600">Monto Cubierto</h4>
-                            <p class="mt-2 text-3xl font-bold text-aps-blue">RD$ 5,000,000</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="carnet-section" class="content-section">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Descarga de Carnet Digital</h3>
-                    
-                    <div class="bg-white p-6 rounded-xl shadow-lg border border-blue-200">
-                        <p class="text-gray-700 mb-6">Utilice el siguiente botón para generar y descargar su carnet. Los datos impresos serán los siguientes:</p>
-                        
-                        <div class="bg-blue-50 p-4 rounded-lg mb-6 text-sm text-gray-800">
-                            <ul>
-                                <li><span class="font-semibold">Nombre:</span> <span id="portal-display-nombre"></span></li>
-                                <li><span class="font-semibold">Cédula:</span> <span id="portal-display-cedula"></span></li>
-                                <li><span class="font-semibold">NSS:</span> <span id="portal-display-nss"></span></li>
-                                <li><span class="font-semibold">Póliza:</span> <span id="portal-display-poliza"></span></li>
-                                <li><span class="font-semibold">Fecha Nac:</span> <span id="portal-display-fecha-nac"></span></li>
-                            </ul>
-                        </div>
-                        
-                        <button id="download-carnet-pdf" class="py-3 px-6 rounded-lg text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-colors flex items-center justify-center">
-                            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                            Descargar Carnet PDF
-                        </button>
-                        <div id="pdf-loading-message" class="hidden mt-2 text-sm text-aps-blue">
-                            Generando PDF, por favor espere...
-                        </div>
-                    </div>
-                </div>
-
-                <div id="dependientes" class="content-section">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Información de Dependientes</h3>
-                    <div class="bg-white p-6 rounded-xl shadow-md">
-                        <p class="text-gray-600">Aquí se mostraría la lista y el estado de sus dependientes asociados a la póliza.</p>
-                    </div>
-                </div>
-                
-                <div id="pagos" class="content-section">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Historial de Pagos</h3>
-                    <div class="bg-white p-6 rounded-xl shadow-md">
-                        <p class="text-gray-600">Aquí se mostraría el historial y el estado actual de los pagos de su póliza.</p>
-                    </div>
-                </div>
-
+            <p class="text-gray-700 mb-4">Haga clic en el botón de abajo para generar y descargar su carnet digital.</p>
+            
+            <div class="bg-blue-50 p-4 rounded-lg mb-6 text-sm text-gray-800 text-left">
+                <ul>
+                    <li><span class="font-semibold">Afiliado:</span> <span id="portal-display-nombre"></span></li>
+                    <li><span class="font-semibold">Póliza:</span> <span id="portal-display-poliza"></span></li>
+                    <li><span class="font-semibold">Cédula:</span> <span id="portal-display-cedula"></span></li>
+                </ul>
             </div>
-        </main>
+
+            <button id="download-carnet-pdf" class="w-full py-3 px-4 rounded-lg text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-colors flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                Descargar Carnet PDF
+            </button>
+            <div id="pdf-loading-message" class="hidden mt-2 text-center text-sm text-aps-blue">
+                Generando PDF...
+            </div>
+            
+            <button id="back-to-login" class="mt-4 text-sm text-gray-500 hover:text-aps-blue">
+                Volver a intentar
+            </button>
+        </div>
     </div>
+
 
     <script>
         const { jsPDF } = window.jspdf;
 
         document.addEventListener('DOMContentLoaded', function () {
-            // --- Elementos y Variables Globales ---
+            // --- Elementos de pantalla ---
             const loginScreen = document.getElementById('login-screen');
-            const portalContainer = document.getElementById('portal-container');
+            const carnetScreen = document.getElementById('carnet-screen');
             const loginForm = document.getElementById('login-form');
             const loginErrorMessage = document.getElementById('login-error-message');
-            const navLinks = document.querySelectorAll('.nav-link');
-            const currentTitle = document.getElementById('current-title');
-            const welcomeName = document.getElementById('welcome-name');
-            const logoutButton = document.getElementById('logout-button');
-
-            // Elementos de la sección Carnet
             const downloadCarnetPdfButton = document.getElementById('download-carnet-pdf');
+            const backToLoginButton = document.getElementById('back-to-login');
             const pdfLoadingMessage = document.getElementById('pdf-loading-message');
             
             let validatedAffiliateData = null;
@@ -262,13 +170,13 @@
                     
                 } catch (error) {
                     console.error("Error al cargar o procesar el CSV:", error);
-                    alert("Error al cargar la base de datos de afiliados. Revise la consola.");
+                    alert("Error al cargar la base de datos de afiliados. Asegúrese de que 'afiliados.csv' existe.");
                 }
             }
             loadAffiliateData();
 
 
-            // --- Lógica de Login ---
+            // --- Lógica de Login/Validación ---
             loginForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 
@@ -287,60 +195,20 @@
                     validatedAffiliateData = foundAffiliate;
                     loginErrorMessage.classList.add('hidden');
                     
-                    // Llenar datos en el portal
-                    const firstName = foundAffiliate.Nombre.split(' ')[0];
-                    welcomeName.textContent = `Bienvenido(a), ${firstName}`;
+                    // Llenar datos en la pantalla de confirmación
                     document.getElementById('portal-display-nombre').textContent = foundAffiliate.Nombre;
                     document.getElementById('portal-display-cedula').textContent = foundAffiliate.Cedula;
                     document.getElementById('portal-display-poliza').textContent = foundAffiliate.Poliza;
-                    document.getElementById('portal-display-fecha-nac').textContent = foundAffiliate.FechaNacimiento;
-                    document.getElementById('portal-display-nss').textContent = foundAffiliate.NSS;
                     
-                    // Mostrar el portal y ocultar el login
+                    // Mostrar pantalla de confirmación y ocultar el login
                     loginScreen.style.display = 'none';
-                    portalContainer.style.display = 'flex';
+                    carnetScreen.style.display = 'flex';
                     
-                    // Mostrar la sección Dashboard por defecto
-                    showSection('dashboard');
                 } else {
                     validatedAffiliateData = null;
                     loginErrorMessage.classList.remove('hidden');
                 }
             });
-
-            // --- Lógica de Navegación del Portal ---
-            function showSection(targetId) {
-                document.querySelectorAll('.content-section').forEach(section => {
-                    section.style.display = 'none';
-                });
-                document.getElementById(targetId).style.display = 'block';
-
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                });
-                document.querySelector(`.nav-link[data-target="${targetId}"]`).classList.add('active');
-                
-                // Actualizar título del header
-                currentTitle.textContent = document.querySelector(`.nav-link[data-target="${targetId}"]`).textContent.trim();
-            }
-
-            navLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    showSection(this.dataset.target);
-                });
-            });
-
-            // --- Lógica de Cerrar Sesión ---
-            logoutButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                portalContainer.style.display = 'none';
-                loginScreen.style.display = 'flex';
-                validatedAffiliateData = null;
-                loginForm.reset();
-                loginErrorMessage.classList.add('hidden');
-            });
-
 
             // --- Lógica de Generación de PDF ---
             downloadCarnetPdfButton.addEventListener('click', function () {
@@ -401,7 +269,7 @@
                         pdf.text(data.FechaNacimiento, mmX(COORDINATES.FechaNacimiento[0]), mmY(COORDINATES.FechaNacimiento[1]));
 
                         // 4. Descargar el archivo
-                        pdf.save(`Carnet_ARS_APS_${data.Cedula}.pdf`);
+                        pdf.save(`Carnet_APS_${data.Cedula}.pdf`);
 
                         // 5. Restaurar botón
                         restoreDownloadButton();
@@ -426,6 +294,15 @@
                 downloadCarnetPdfButton.classList.add('bg-green-600', 'hover:bg-green-700');
                 pdfLoadingMessage.classList.add('hidden');
             }
+            
+            // --- Lógica de Volver al Login ---
+            backToLoginButton.addEventListener('click', function() {
+                carnetScreen.style.display = 'none';
+                loginScreen.style.display = 'flex';
+                validatedAffiliateData = null; // Limpiar datos validados
+                loginForm.reset();
+                loginErrorMessage.classList.add('hidden');
+            });
         });
     </script>
 </body>
