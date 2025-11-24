@@ -22,9 +22,24 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Aplicar animación de fade-in a las pantallas */
         #carnet-confirmation-screen {
             animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* ESTILO PARA EL CÍRCULO DECORATIVO */
+        .decorative-circle {
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(59, 130, 246, 0.15); /* blue-500 con 15% de opacidad */
+            border-radius: 50%;
+            z-index: 10;
+        }
+        .login-card-content {
+            position: relative;
+            z-index: 20; /* Asegura que el contenido esté sobre el círculo */
         }
     </style>
 </head>
@@ -33,41 +48,49 @@
     <div id="app-container">
 
         <div id="carnet-login-screen" class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-            <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
-                <div class="text-center">
-                    <h1 class="text-3xl font-bold text-blue-600">APS Salud</h1>
-                    <p class="mt-2 text-lg text-gray-600">Carnet Digital de Afiliación</p>
-                </div>
+            <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8 relative overflow-hidden">
                 
-                <form id="login-form" class="mt-8 space-y-6">
-                    <div>
-                        <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
-                        <input id="cedula" name="cedula" type="text" required
-                               class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="001-0000000-0" value="402-5726298-6">
+                <div class="decorative-circle hidden sm:block"></div> 
+                
+                <div class="login-card-content">
+                    <div class="text-center">
+                        <h1 class="text-3xl font-bold text-blue-600 flex items-center justify-center">
+                            <svg class="w-8 h-8 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3M12 12h3M12 3v18m7.5-6H4.5"/></svg>
+                            APS Salud
+                        </h1>
+                        <p class="mt-2 text-lg text-gray-600">Carnet Digital de Afiliación</p>
                     </div>
+                    
+                    <form id="login-form" class="mt-8 space-y-6">
+                        <div>
+                            <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
+                            <input id="cedula" name="cedula" type="text" required
+                                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="001-0000000-0" value="402-5726298-6">
+                        </div>
 
-                    <div>
-                        <label for="poliza" class="block text-sm font-medium text-gray-700">Código de Póliza</label>
-                        <input id="poliza" name="poliza" type="text" required
-                               class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="00000-00000-00" value="18204-56574-00">
-                    </div>
+                        <div>
+                            <label for="poliza" class="block text-sm font-medium text-gray-700">Código de Póliza</label>
+                            <input id="poliza" name="poliza" type="text" required
+                                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="00000-00000-00" value="18204-56574-00">
+                        </div>
 
-                    <div>
-                        <label for="fecha-nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (DD/MM/AAAA)</label>
-                        <input id="fecha-nacimiento" name="fecha-nacimiento" type="text" required
-                               class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                               placeholder="DD/MM/AAAA" value="16/10/2004">
-                    </div>
+                        <div>
+                            <label for="fecha-nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (DD/MM/AAAA)</label>
+                            <input id="fecha-nacimiento" name="fecha-nacimiento" type="text" required
+                                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="DD/MM/AAAA" value="16/10/2004">
+                        </div>
 
-                    <div>
-                        <button type="submit"
+                        <div>
+                            <button type="submit"
                                 class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                            Ver Carnet Digital
-                        </button>
-                    </div>
-                </form>
+                                Ver Carnet Digital
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
