@@ -54,10 +54,15 @@
                 
                 <div class="login-card-content">
                     <div class="text-center">
-                        <h1 class="text-3xl font-bold text-blue-600 flex items-center justify-center">
-                            <svg class="w-8 h-8 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3M12 12h3M12 3v18m7.5-6H4.5"/></svg>
-                            APS Salud
-                        </h1>
+                        <div class="flex items-center justify-center mb-2">
+                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0
+        Irf4A6h4D0AAAAASUVORK5CYII=" 
+                                alt="Logo APS Salud" 
+                                class="w-10 h-10 mr-2 object-contain"
+                                style="/* REEMPLAZAR EL 'src' CON SU CÓDIGO BASE64 DEL LOGO */"
+                            >
+                            <span class="text-3xl font-bold text-blue-600">APS Salud</span>
+                        </div>
                         <p class="mt-2 text-lg text-gray-600">Carnet Digital de Afiliación</p>
                     </div>
                     
@@ -66,22 +71,19 @@
                             <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
                             <input id="cedula" name="cedula" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="001-0000000-0" value="402-5726298-6">
-                        </div>
+                                placeholder="001-0000000-0" value="402-5726298-6"> </div>
 
                         <div>
                             <label for="poliza" class="block text-sm font-medium text-gray-700">Código de Póliza</label>
                             <input id="poliza" name="poliza" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="00000-00000-00" value="18204-56574-00">
-                        </div>
+                                placeholder="00000-00000-00" value="18204-56574-00"> </div>
 
                         <div>
                             <label for="fecha-nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (DD/MM/AAAA)</label>
                             <input id="fecha-nacimiento" name="fecha-nacimiento" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="DD/MM/AAAA" value="16/10/2004">
-                        </div>
+                                placeholder="DD/MM/AAAA" value="16/10/2004"> </div>
 
                         <div>
                             <button type="submit"
@@ -181,15 +183,15 @@
 
         /**
          * Simula la carga de datos desde el archivo afiliados.csv.
+         * ESTA SECCIÓN CONTIENE TODOS LOS REGISTROS PARA LA VALIDACIÓN.
          */
         async function loadAffiliateData() {
-            // SIMULACIÓN DEL CONTENIDO DE afiliados.csv
             const csvContent = `CRISTIAN AGUSTIN ULLOA MARTINEZ;001-0219588-0;2434133;00525-00018-04;13/06/1974
 YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             
             try {
                 affiliateData = parseCSV(csvContent);
-                console.log('Datos de afiliados cargados y parseados correctamente.', affiliateData);
+                console.log('Datos de afiliados cargados y parseados correctamente para validación:', affiliateData);
             } catch (error) {
                 console.error("Error al cargar o procesar el CSV simulado:", error);
             }
@@ -221,9 +223,8 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             const pdfLoadingMessage = document.getElementById('pdf-loading-message');
 
 
-            // --- LÓGICA DE LOGIN ---
+            // --- LÓGICA DE LOGIN (VALIDACIÓN DE TODOS LOS REGISTROS) ---
 
-            // Simular Login
             loginForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 
@@ -231,12 +232,13 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 const poliza = document.getElementById('poliza').value.trim();
                 const fechaNacimiento = document.getElementById('fecha-nacimiento').value.trim();
 
-                // Busca la coincidencia de los 3 campos en el array de datos
+                // *** ESTA FUNCIÓN BUSCA COINCIDENCIA EN TODOS LOS REGISTROS DE affiliateData ***
                 loggedInAffiliate = affiliateData.find(affiliate => 
                     affiliate.Cedula === cedula && 
                     affiliate.Poliza === poliza && 
                     affiliate.FechaNacimiento === fechaNacimiento
                 );
+                // ********************************************************************************
 
                 if (loggedInAffiliate) {
                     // 1. Actualizar el carnet con los datos del afiliado
@@ -244,7 +246,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
 
                     // 2. Transición de pantallas
                     loginScreen.style.display = 'none';
-                    confirmationScreen.style.display = 'flex'; // Usamos flex para centrar
+                    confirmationScreen.style.display = 'flex'; 
                 } else {
                     alert('Credenciales no válidas. Por favor, verifique Cédula, Póliza y Fecha de Nacimiento.');
                 }
@@ -274,7 +276,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
 
                 // Usamos html2canvas para renderizar el DIV del carnet como una imagen
                 html2canvas(carnetCard, { 
-                    scale: 3, // Aumenta la resolución
+                    scale: 3, 
                     useCORS: true 
                 }).then(canvas => {
                     const imgData = canvas.toDataURL('image/png');
@@ -283,8 +285,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                     const widthInMM = 85.6;
                     const heightInMM = 53.98;
                     
-                    // Inicializa jsPDF en modo horizontal (landscape), especificando el tamaño del carnet
-                    // Se agrega un margen de 4mm (2mm a cada lado)
+                    // Inicializa jsPDF en modo horizontal (landscape)
                     const pdf = new jsPDF('l', 'mm', [widthInMM + 4, heightInMM + 4]); 
                     const pdfWidth = pdf.internal.pageSize.getWidth();
                     const pdfHeight = pdf.internal.pageSize.getHeight();
