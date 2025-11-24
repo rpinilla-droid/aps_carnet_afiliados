@@ -235,7 +235,7 @@
                     affiliate[key] = values[i] ? values[i].trim() : '';
                 });
                 return affiliate;
-            });
+            }).filter(aff => aff.Cedula); // Filtrar filas vacías o sin cédula
         }
 
         /**
@@ -315,6 +315,7 @@
 
             // 1. Mostrar estado de carga y deshabilitar botón
             downloadButton.disabled = true;
+            downloadButton.classList.remove('hover:bg-aps-blue-hover');
             loadingMessage.classList.remove('hidden');
 
             try {
@@ -353,7 +354,6 @@
                     let x_mm = mmX(x_px_coord);
                     let y_mm = mmY(y_px_coord); 
                     
-                    // Asegurar que solo se escriba si el valor existe
                     if(dataFields[key]) {
                         pdf.text(dataFields[key], x_mm, y_mm);
                     }
@@ -364,13 +364,13 @@
                 
             } catch (error) {
                 console.error("Error al generar el PDF:", error);
-                alert("Hubo un error CRÍTICO al intentar generar el PDF. Revise la consola del navegador para detalles. Esto puede ser por una URL RAW incorrecta de la plantilla de imagen o datos inválidos.");
+                alert("Hubo un error CRÍTICO al intentar generar el PDF. Revise la consola del navegador.");
             } finally {
                 // 2. Ocultar estado de carga y habilitar botón
-                // Usamos setTimeout para asegurar que la actualización del DOM ocurra después 
-                // de que el navegador ha terminado de manejar el proceso de guardado/descarga.
+                // Usamos setTimeout para evitar el bloqueo visual con pdf.save().
                 setTimeout(() => {
                     downloadButton.disabled = false;
+                    downloadButton.classList.add('hover:bg-aps-blue-hover');
                     loadingMessage.classList.add('hidden');
                 }, 100); 
             }
@@ -396,6 +396,9 @@
                 statusMessage = "Error CRÍTICO: No se pudieron cargar datos de afiliación válidos del CSV. Verifique la URL RAW y la consola.";
                 dataLoadingMessage.classList.add('text-red-600');
                 canProceed = false;
+            } else {
+                // Éxito en la carga de data crítica: El mensaje queda vacío.
+                statusMessage = ""; 
             }
             
             // Si la imagen falla, es una advertencia, solo si la data crítica cargó.
@@ -410,7 +413,7 @@
                 dataLoadingMessage.classList.remove('text-red-600', 'text-gray-500'); 
                 
                 if (statusMessage === "") {
-                    // Carga completa y exitosa (ambos OK)
+                    // Carga completa y exitosa (ambos OK). El mensaje queda vacío.
                     dataLoadingMessage.classList.add('text-green-600');
                 } else {
                     // Carga exitosa con advertencia (CSV OK, imagen KO)
