@@ -16,10 +16,13 @@
         :root {
             --aps-blue: #066aab;
             --aps-blue-hover: #055e98;
+            --page-bg-color: #f1f5f9; /* Color de fondo general, similar al gray-100 */
+            --decoration-circle-color: rgba(6, 106, 171, 0.1); /* Azul corporativo con transparencia */
         }
         
         body {
             font-family: 'Inter', sans-serif;
+            background-color: var(--page-bg-color); /* Aplicar el color de fondo a todo el body */
         }
         
         /* Aplicación del color corporativo */
@@ -31,55 +34,82 @@
         #login-form input:focus {
             border-color: var(--aps-blue);
         }
+
+        /* Estilos para el círculo decorativo */
+        .decorative-circle {
+            position: absolute;
+            top: -50px; /* Ajusta la posición vertical */
+            right: -50px; /* Ajusta la posición horizontal */
+            width: 200px; /* Tamaño del círculo */
+            height: 200px; /* Tamaño del círculo */
+            background-color: var(--decoration-circle-color);
+            border-radius: 50%;
+            z-index: 0; /* Asegura que esté detrás del contenido del formulario */
+        }
+
+        /* Asegurar que el contenido del formulario esté por encima del círculo */
+        .login-card-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* El contenedor principal de la tarjeta de login para que el círculo se posicione relativo a él */
+        #login-screen > div { /* Target the div with max-w-md */
+            position: relative;
+            overflow: hidden; /* Para que el círculo no se salga de los bordes redondeados */
+        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
-            <div class="text-left mb-6">
-                <img src="https://apsars.do/wp-content/uploads/2023/07/logo-ARS-Web-1-1.png" alt="APS Salud Logo" class="h-10 mb-4">
-                
-                <h2 class="text-2xl font-bold text-aps-blue">Descarga tu Carnet Digital</h2>
-                
-                <p class="mt-2 text-base text-gray-600">Ingresa los siguientes datos.</p>
-            </div>
+            <div class="decorative-circle"></div> 
             
-            <form id="login-form" class="space-y-6">
-                
-                <div>
-                    <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
-                    <input id="cedula" name="cedula" type="text" required
-                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                           placeholder="001-0000000-0">
+            <div class="login-card-content">
+                <div class="text-left mb-6">
+                    <img src="https://apsars.do/wp-content/uploads/2023/07/logo-ARS-Web-1-1.png" alt="APS Salud Logo" class="h-10 mb-4">
+                    
+                    <h2 class="text-2xl font-bold text-aps-blue">Descarga tu Carnet Digital</h2>
+                    
+                    <p class="mt-2 text-base text-gray-600">Ingresa los siguientes datos.</p>
                 </div>
+                
+                <form id="login-form" class="space-y-6">
+                    
+                    <div>
+                        <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
+                        <input id="cedula" name="cedula" type="text" required
+                            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
+                            placeholder="001-0000000-0">
+                    </div>
 
-                <div>
-                    <label for="poliza" class="block text-sm font-medium text-gray-700">Código de Póliza</label>
-                    <input id="poliza" name="poliza" type="text" required
-                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                           placeholder="123456-01">
-                </div>
-                
-                <div>
-                    <label for="fecha-nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (DD/MM/AAAA)</label>
-                    <input id="fecha-nacimiento" name="fecha-nacimiento" type="text" required
-                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                           placeholder="Ej: 15/05/1985">
-                </div>
-                
-                <div id="login-error-message" class="hidden text-sm text-red-600 text-center font-medium">
-                    Datos incorrectos. Por favor, verifique su Cédula, Póliza y Fecha de Nacimiento.
-                </div>
+                    <div>
+                        <label for="poliza" class="block text-sm font-medium text-gray-700">Código de Póliza</label>
+                        <input id="poliza" name="poliza" type="text" required
+                            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
+                            placeholder="123456-01">
+                    </div>
+                    
+                    <div>
+                        <label for="fecha-nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (DD/MM/AAAA)</label>
+                        <input id="fecha-nacimiento" name="fecha-nacimiento" type="text" required
+                            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
+                            placeholder="Ej: 15/05/1985">
+                    </div>
+                    
+                    <div id="login-error-message" class="hidden text-sm text-red-600 text-center font-medium">
+                        Datos incorrectos. Por favor, verifique su Cédula, Póliza y Fecha de Nacimiento.
+                    </div>
 
-                <div>
-                    <button type="submit"
-                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-aps-blue hover:bg-aps-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue transition-colors">
-                        Validar y Descargar Carnet
-                    </button>
-                </div>
-            </form>
-        </div>
+                    <div>
+                        <button type="submit"
+                                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-aps-blue hover:bg-aps-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue transition-colors">
+                            Validar y Descargar Carnet
+                        </button>
+                    </div>
+                </form>
+            </div> </div>
     </div>
     
     <div id="carnet-screen" class="hidden min-h-screen flex items-center justify-center bg-gray-50 p-4">
