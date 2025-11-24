@@ -180,10 +180,9 @@
         
         // --------------------------------------------------------------------------
         // !!! DEBE REEMPLAZAR ESTAS URLS CON SUS ENLACES RAW REALES DE GITHUB !!!
-        // Si estos enlaces no son RAW y públicos, la aplicación NO FUNCIONARÁ.
         // --------------------------------------------------------------------------
-        const CSV_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/afiliados.csv'; 
-        const CARNET_IMAGE_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/carnet.png'; 
+        const CSV_URL = 'https://PLACEHOLDER.com/REEMPLACEME_CON_SU_CSV_RAW_URL'; 
+        const CARNET_IMAGE_URL = 'https://PLACEHOLDER.com/REEMPLACEME_CON_SU_CARNET_PNG_RAW_URL'; 
         
         // --------------------------------------------------------------------------
         // LÓGICA DE COORDENADAS Y ESCALA SOLICITADA
@@ -226,6 +225,7 @@
          */
         function parseCSV(csvText) {
             const lines = csvText.trim().split('\n');
+            // Nota: Se asume que las columnas son: Nombre;Cedula;NSS;Poliza;FechaNacimiento
             const keys = ["Nombre", "Cedula", "NSS", "Poliza", "FechaNacimiento"]; 
             
             // Ignorar la primera línea (cabecera)
@@ -333,9 +333,10 @@
             
             // --- 2. COLOCACIÓN DE DATOS CON COORDENADAS ESCALADAS ---
             
-            pdf.setTextColor(0, 0, 0); 
+            // Color de texto solicitado: #036498 (RGB: 3, 100, 152)
+            pdf.setTextColor(3, 100, 152); 
             pdf.setFont('helvetica', 'bold'); 
-            pdf.setFontSize(TEXT_SIZE); // Usa el tamaño de texto solicitado
+            pdf.setFontSize(TEXT_SIZE); 
             
             const dataFields = {
                 Nombre: affiliate.Nombre,
@@ -349,7 +350,7 @@
                 // Las coordenadas proporcionadas son: [X_PIXEL, Y_PIXEL]
                 const [x_px_coord, y_px_coord] = COORDINATES[key];
                 
-                // Conversión de píxeles a milímetros usando las funciones helper solicitadas
+                // Conversión de píxeles a milímetros
                 let x_mm = mmX(x_px_coord);
                 let y_mm = mmY(y_px_coord); 
                 
@@ -377,8 +378,8 @@
             let canProceed = true;
 
             // Lógica estricta: Si el CSV no carga, no se puede continuar.
-            if (!dataLoaded) {
-                statusMessage += "Error CRÍTICO: No se pudieron cargar datos de afiliación válidos del CSV. Verifique la URL RAW.";
+            if (!dataLoaded || affiliateData.length === 0) {
+                statusMessage = "Error CRÍTICO: No se pudieron cargar datos de afiliación válidos del CSV. Verifique la URL RAW.";
                 dataLoadingMessage.classList.add('text-red-600');
                 canProceed = false;
             } else {
@@ -387,8 +388,9 @@
             
             // Si la imagen falla, es una advertencia, pero no impide el login si hay datos.
             if (!imageLoaded) {
-                 statusMessage += "Advertencia: La plantilla de imagen del carnet falló al cargar. El PDF no tendrá fondo. ";
-                 dataLoadingMessage.classList.add('text-orange-600');
+                 statusMessage += "Advertencia: La plantilla de imagen del carnet falló al cargar. El PDF se generará sin fondo. ";
+                 // Mantener el color rojo si hay un error crítico de data
+                 if(canProceed) dataLoadingMessage.classList.add('text-orange-600'); 
             } else {
                 statusMessage += "Plantilla de carnet cargada. ";
             }
@@ -442,7 +444,7 @@
                 }
             });
 
-            // --- LÓGICA DE VOLVER AL INICIO/CERRAR SESIÓN ---
+            // --- LÓGICA de VOLVER al INICIO/CERRAR SESIÓN ---
             backToLoginButton.addEventListener('click', function () {
                 loggedInAffiliate = null; 
                 confirmationScreen.style.display = 'none';
@@ -463,4 +465,3 @@
     </script>
 </body>
 </html>
-
