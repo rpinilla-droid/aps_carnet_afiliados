@@ -180,20 +180,16 @@
         
         // --------------------------------------------------------------------------
         // !!! DEBE REEMPLAZAR ESTAS URLS CON SUS ENLACES RAW REALES DE GITHUB !!!
+        // Si estos enlaces no son RAW y públicos, la aplicación NO FUNCIONARÁ.
         // --------------------------------------------------------------------------
-        const CSV_URL = 'https://PLACEHOLDER.com/REEMPLACEME_CON_SU_CSV_RAW_URL'; 
-        const CARNET_IMAGE_URL = 'https://PLACEHOLDER.com/REEMPLACEME_CON_SU_CARNET_PNG_RAW_URL'; 
+        const CSV_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/archivo.csv'; 
+        const CARNET_IMAGE_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/carnet.png'; 
         
-        // Fallback (solo se usa si no se reemplazan las URLs)
-        const FALLBACK_CSV_CONTENT = `Nombre;Cedula;NSS;Poliza;FechaNacimiento
-CRISTIAN AGUSTIN ULLOA MARTINEZ;001-0219588-0;2434133;00525-00018-04;13/06/1974
-YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
-
         // --------------------------------------------------------------------------
         // LÓGICA DE COORDENADAS Y ESCALA SOLICITADA
         // --------------------------------------------------------------------------
         
-        // Dimensiones de la plantilla de imagen (asumidas para calcular el escalado)
+        // Dimensiones de la plantilla de imagen (1280x853px)
         const TEMPLATE_WIDTH_PX = 1280;
         const TEMPLATE_HEIGHT_PX = 853; 
 
@@ -249,16 +245,19 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
         async function loadAffiliateData() {
             try {
                 if (CSV_URL.includes('PLACEHOLDER')) {
-                    affiliateData = parseCSV(FALLBACK_CSV_CONTENT);
-                    console.warn("ADVERTENCIA: Usando datos simulados. Reemplace 'CSV_URL'.");
-                    return true;
+                    throw new Error("La URL del CSV no ha sido reemplazada. Fallo estricto.");
                 }
 
                 const response = await fetch(CSV_URL);
-                if (!response.ok) throw new Error(`Error ${response.status}`);
+                if (!response.ok) throw new Error(`Error ${response.status} al cargar el CSV. Verifique la URL RAW y CORS.`);
                 
                 const csvText = await response.text();
                 affiliateData = parseCSV(csvText);
+                
+                if (affiliateData.length === 0) {
+                     throw new Error("El archivo CSV cargado no contiene registros de afiliados.");
+                }
+
                 return true;
             } catch (error) {
                 console.error("Fallo al intentar cargar el archivo CSV:", error);
@@ -273,12 +272,11 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
         async function loadCarnetImage() {
             try {
                 if (CARNET_IMAGE_URL.includes('PLACEHOLDER')) {
-                    console.warn("ADVERTENCIA: URL de la imagen carnet no definida. El PDF no tendrá fondo.");
-                    return true;
+                    throw new Error("La URL de la imagen carnet no ha sido reemplazada. Fallo estricto.");
                 }
                 
                 const response = await fetch(CARNET_IMAGE_URL);
-                if (!response.ok) throw new Error(`Error ${response.status}`);
+                if (!response.ok) throw new Error(`Error ${response.status} al cargar la imagen. Verifique la URL RAW y CORS.`);
                 
                 const blob = await response.blob();
                 carnetBase64Image = await new Promise((resolve) => {
@@ -287,7 +285,6 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                     reader.readAsDataURL(blob);
                 });
                 
-                console.log("Carnet image loaded successfully.");
                 return true;
             } catch (error) {
                 console.error("Fallo al cargar la imagen del carnet:", error);
@@ -327,11 +324,11 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 // Añade la imagen para que ocupe todo el espacio ID-1
                 pdf.addImage(carnetBase64Image, 'PNG', 0, 0, PDF_WIDTH_MM, PDF_HEIGHT_MM); 
             } else {
-                // Fallback visual si no se pudo cargar la imagen
+                // Si falla la carga de la imagen, se genera un fondo blanco con advertencia
                 pdf.setFillColor(255, 255, 255); 
                 pdf.rect(0, 0, PDF_WIDTH_MM, PDF_HEIGHT_MM, 'F');
                 pdf.setFontSize(8);
-                pdf.text("ADVERTENCIA: No hay imagen de carnet. Colocación de datos sin fondo.", 5, 5);
+                pdf.text("ADVERTENCIA: Imagen de carnet no disponible.", 5, 5);
             }
             
             // --- 2. COLOCACIÓN DE DATOS CON COORDENADAS ESCALADAS ---
@@ -369,6 +366,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
 
 
         document.addEventListener('DOMContentLoaded', async function () {
+            
             // 1. Cargar datos del CSV y la imagen del carnet en paralelo
             const [dataLoaded, imageLoaded] = await Promise.all([
                 loadAffiliateData(), 
@@ -378,16 +376,18 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             let statusMessage = "";
             let canProceed = true;
 
-            if (!dataLoaded || affiliateData.length === 0) {
-                statusMessage += "Error: No se cargaron datos de afiliación válidos. ";
+            // Lógica estricta: Si el CSV no carga, no se puede continuar.
+            if (!dataLoaded) {
+                statusMessage += "Error CRÍTICO: No se pudieron cargar datos de afiliación válidos del CSV. Verifique la URL RAW.";
                 dataLoadingMessage.classList.add('text-red-600');
                 canProceed = false;
             } else {
-                statusMessage += "Datos de afiliación listos. ";
+                statusMessage += "Datos de afiliación cargados con éxito. ";
             }
             
+            // Si la imagen falla, es una advertencia, pero no impide el login si hay datos.
             if (!imageLoaded) {
-                 statusMessage += "Advertencia: La plantilla de imagen del carnet falló al cargar. ";
+                 statusMessage += "Advertencia: La plantilla de imagen del carnet falló al cargar. El PDF no tendrá fondo. ";
                  dataLoadingMessage.classList.add('text-orange-600');
             } else {
                 statusMessage += "Plantilla de carnet cargada. ";
@@ -416,7 +416,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 errorMessage.classList.add('hidden'); 
                 
                 if (!canProceed) {
-                    alert("Error: La carga de datos fue crítica. No se puede validar.");
+                    alert("Error: No se pudo cargar la data de afiliados. Verifique la consola para más detalles.");
                     return;
                 }
 
