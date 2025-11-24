@@ -342,7 +342,7 @@
                 
                 const dataFields = {
                     Nombre: affiliate.Nombre,
-                    Cedula: affiliate.Cedula, // CORREGIDO: Usar affiliate.Cedula
+                    Cedula: affiliate.Cedula, 
                     NSS: affiliate.NSS,
                     Poliza: affiliate.Poliza,
                     FechaNacimiento: affiliate.FechaNacimiento
@@ -353,19 +353,26 @@
                     let x_mm = mmX(x_px_coord);
                     let y_mm = mmY(y_px_coord); 
                     
-                    pdf.text(dataFields[key], x_mm, y_mm);
+                    // Asegurar que solo se escriba si el valor existe
+                    if(dataFields[key]) {
+                        pdf.text(dataFields[key], x_mm, y_mm);
+                    }
                 }
 
-                // Descargar el archivo (Esta operación puede tardar si el PDF es grande)
+                // Descargar el archivo (Esta operación puede tardar)
                 pdf.save(`Carnet_APS_${affiliate.Cedula}.pdf`);
                 
             } catch (error) {
                 console.error("Error al generar el PDF:", error);
-                alert("Hubo un error al intentar generar el PDF. Revise la consola.");
+                alert("Hubo un error CRÍTICO al intentar generar el PDF. Revise la consola del navegador para detalles. Esto puede ser por una URL RAW incorrecta de la plantilla de imagen o datos inválidos.");
             } finally {
                 // 2. Ocultar estado de carga y habilitar botón
-                downloadButton.disabled = false;
-                loadingMessage.classList.add('hidden');
+                // Usamos setTimeout para asegurar que la actualización del DOM ocurra después 
+                // de que el navegador ha terminado de manejar el proceso de guardado/descarga.
+                setTimeout(() => {
+                    downloadButton.disabled = false;
+                    loadingMessage.classList.add('hidden');
+                }, 100); 
             }
         }
 
