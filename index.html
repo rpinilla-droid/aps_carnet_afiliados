@@ -181,8 +181,8 @@
         // --------------------------------------------------------------------------
         // !!! DEBE REEMPLAZAR ESTAS URLS CON SUS ENLACES RAW REALES DE GITHUB !!!
         // --------------------------------------------------------------------------
-        const CSV_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/afiliados.csv'; 
-        const CARNET_IMAGE_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/carnet.png'; 
+        const CSV_URL = 'https://PLACEHOLDER.com/REEMPLACEME_CON_SU_CSV_RAW_URL'; 
+        const CARNET_IMAGE_URL = 'https://PLACEHOLDER.com/REEMPLACEME_CON_SU_CARNET_PNG_RAW_URL'; 
         
         // --------------------------------------------------------------------------
         // LÓGICA DE COORDENADAS Y ESCALA SOLICITADA
@@ -309,62 +309,64 @@
         /**
          * Genera y descarga el Carnet PDF usando la imagen de fondo y coordenadas.
          */
-        function generateCarnetPdf(affiliate) {
+        async function generateCarnetPdf(affiliate) {
             const downloadButton = document.getElementById('download-carnet-pdf-btn');
             const loadingMessage = document.getElementById('pdf-loading-message-carnet');
 
+            // 1. Mostrar estado de carga y deshabilitar botón
             downloadButton.disabled = true;
             loadingMessage.classList.remove('hidden');
 
-            const pdf = new jsPDF({
-                orientation: 'l', // Horizontal
-                unit: 'mm',
-                format: [PDF_WIDTH_MM, PDF_HEIGHT_MM] // Usa las dimensiones ID-1 solicitadas
-            });
-            
-            // --- 1. IMAGEN DE FONDO (CARNET.PNG) ---
-            if (carnetBase64Image) {
-                // Añade la imagen para que ocupe todo el espacio ID-1
-                pdf.addImage(carnetBase64Image, 'PNG', 0, 0, PDF_WIDTH_MM, PDF_HEIGHT_MM); 
-            } else {
-                // Si falla la carga de la imagen, se genera un fondo blanco con advertencia
-                pdf.setFillColor(255, 255, 255); 
-                pdf.rect(0, 0, PDF_WIDTH_MM, PDF_HEIGHT_MM, 'F');
-                pdf.setFontSize(8);
-                pdf.text("ADVERTENCIA: Imagen de carnet no disponible.", 5, 5);
-            }
-            
-            // --- 2. COLOCACIÓN DE DATOS CON COORDENADAS ESCALADAS ---
-            
-            // Color de texto solicitado: #036498 (RGB: 3, 100, 152)
-            pdf.setTextColor(3, 100, 152); 
-            pdf.setFont('helvetica', 'bold'); 
-            pdf.setFontSize(TEXT_SIZE); 
-            
-            const dataFields = {
-                Nombre: affiliate.Nombre,
-                Cedula: affiliate.DatosCedula, // Usar el campo decodificado
-                NSS: affiliate.NSS,
-                Poliza: affiliate.Poliza,
-                FechaNacimiento: affiliate.FechaNacimiento
-            };
-
-            for (const key in COORDINATES) {
-                const [x_px_coord, y_px_coord] = COORDINATES[key];
+            try {
+                const pdf = new jsPDF({
+                    orientation: 'l', // Horizontal
+                    unit: 'mm',
+                    format: [PDF_WIDTH_MM, PDF_HEIGHT_MM] // Usa las dimensiones ID-1 solicitadas
+                });
                 
-                // Conversión de píxeles a milímetros
-                let x_mm = mmX(x_px_coord);
-                let y_mm = mmY(y_px_coord); 
+                // --- 1. IMAGEN DE FONDO (CARNET.PNG) ---
+                if (carnetBase64Image) {
+                    pdf.addImage(carnetBase64Image, 'PNG', 0, 0, PDF_WIDTH_MM, PDF_HEIGHT_MM); 
+                } else {
+                    pdf.setFillColor(255, 255, 255); 
+                    pdf.rect(0, 0, PDF_WIDTH_MM, PDF_HEIGHT_MM, 'F');
+                    pdf.setFontSize(8);
+                    pdf.text("ADVERTENCIA: Imagen de carnet no disponible.", 5, 5);
+                }
                 
-                pdf.text(dataFields[key], x_mm, y_mm);
+                // --- 2. COLOCACIÓN DE DATOS CON COORDENADAS ESCALADAS ---
+                
+                pdf.setTextColor(3, 100, 152); 
+                pdf.setFont('helvetica', 'bold'); 
+                pdf.setFontSize(TEXT_SIZE); 
+                
+                const dataFields = {
+                    Nombre: affiliate.Nombre,
+                    Cedula: affiliate.Cedula, // CORREGIDO: Usar affiliate.Cedula
+                    NSS: affiliate.NSS,
+                    Poliza: affiliate.Poliza,
+                    FechaNacimiento: affiliate.FechaNacimiento
+                };
+
+                for (const key in COORDINATES) {
+                    const [x_px_coord, y_px_coord] = COORDINATES[key];
+                    let x_mm = mmX(x_px_coord);
+                    let y_mm = mmY(y_px_coord); 
+                    
+                    pdf.text(dataFields[key], x_mm, y_mm);
+                }
+
+                // Descargar el archivo (Esta operación puede tardar si el PDF es grande)
+                pdf.save(`Carnet_APS_${affiliate.Cedula}.pdf`);
+                
+            } catch (error) {
+                console.error("Error al generar el PDF:", error);
+                alert("Hubo un error al intentar generar el PDF. Revise la consola.");
+            } finally {
+                // 2. Ocultar estado de carga y habilitar botón
+                downloadButton.disabled = false;
+                loadingMessage.classList.add('hidden');
             }
-
-            // Descargar el archivo
-            pdf.save(`Carnet_APS_${affiliate.Cedula}.pdf`);
-
-            // Restaurar estado
-            downloadButton.disabled = false;
-            loadingMessage.classList.add('hidden');
         }
 
 
@@ -377,24 +379,22 @@
             ]);
 
             let statusMessage = "";
-            let canProceed = true; // Asumir éxito hasta que falle la carga crítica
+            let canProceed = true; 
+            
+            // Limpiar mensaje de carga inicial del HTML
+            dataLoadingMessage.textContent = "";
 
             // Lógica estricta: Si el CSV no carga, no se puede continuar.
             if (!dataLoaded || affiliateData.length === 0) {
                 statusMessage = "Error CRÍTICO: No se pudieron cargar datos de afiliación válidos del CSV. Verifique la URL RAW y la consola.";
                 dataLoadingMessage.classList.add('text-red-600');
                 canProceed = false;
-            } else {
-                // Éxito en la carga de data crítica: El mensaje debe quedar vacío.
-                statusMessage = ""; 
             }
             
             // Si la imagen falla, es una advertencia, solo si la data crítica cargó.
-            if (!imageLoaded) {
-                 if(canProceed) { 
-                    statusMessage = "Advertencia: La plantilla de imagen del carnet falló al cargar. El PDF se generará sin fondo.";
-                    dataLoadingMessage.classList.add('text-orange-600');
-                 }
+            if (canProceed && !imageLoaded) { 
+                statusMessage = "Advertencia: La plantilla de imagen del carnet falló al cargar. El PDF se generará sin fondo.";
+                dataLoadingMessage.classList.add('text-orange-600');
             }
 
             // Habilitar o deshabilitar el botón y actualizar mensaje final
@@ -419,7 +419,7 @@
                  dataLoadingMessage.classList.add('text-red-600');
             }
             
-            // Si statusMessage es "", el div dataLoadingMessage queda vacío, como se solicitó.
+            // Si statusMessage es "", el div dataLoadingMessage queda vacío.
             dataLoadingMessage.textContent = statusMessage.trim();
 
 
