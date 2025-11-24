@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APS Salud - Portal de Afiliados</title>
+    <title>APS Salud - Carnet Digital</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,63 +17,14 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Ocultar secciones por defecto */
-        .content-section {
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        /* Mostrar la sección activa */
-        .content-section.active {
-            display: block;
-        }
-        /* Animación de fade-in */
+        /* Animación de fade-in simple */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Estilos para el modal */
-        .modal {
-            display: none;
-        }
-        .modal.active {
-            display: flex;
-        }
-        /* Estilo para campos de solo lectura (no modificables) */
-        .readonly-field {
-            background-color: #f3f4f6; /* bg-gray-100 */
-            color: #4b5563; /* text-gray-700 */
-            border: 1px solid #d1d5db; /* border-gray-300 */
-            border-radius: 0.5rem; /* rounded-lg */
-            padding: 0.75rem 1rem; /* p-3 */
-            width: 100%;
-            font-size: 0.875rem; /* text-sm */
-        }
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            color: #d1d5db; /* text-gray-300 */
-            transition: all 0.2s ease-in-out;
-        }
-        .nav-link:hover {
-            background-color: #374151; /* hover:bg-gray-700 */
-            color: white;
-        }
-        .nav-link.active {
-            background-color: #2563eb; /* bg-blue-600 */
-            color: white;
-            font-weight: 600;
-        }
-
-        /* Estilos responsivos para la barra lateral */
-        @media (max-width: 768px) {
-            .mobile-menu-open {
-                transform: translateX(0);
-            }
-            .mobile-menu-closed {
-                transform: translateX(-100%);
-            }
+        /* Aplicar animación de fade-in a las pantallas */
+        #carnet-confirmation-screen {
+            animation: fadeIn 0.3s ease-in-out;
         }
     </style>
 </head>
@@ -81,11 +32,11 @@
 
     <div id="app-container">
 
-        <div id="login-screen" class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div id="carnet-login-screen" class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
             <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
                 <div class="text-center">
                     <h1 class="text-3xl font-bold text-blue-600">APS Salud</h1>
-                    <p class="mt-2 text-lg text-gray-600">Portal de Afiliados</p>
+                    <p class="mt-2 text-lg text-gray-600">Carnet Digital de Afiliación</p>
                 </div>
                 
                 <form id="login-form" class="mt-8 space-y-6">
@@ -110,398 +61,40 @@
                                placeholder="DD/MM/AAAA" value="16/10/2004">
                     </div>
 
-                    <div class="flex items-center justify-end">
-                        <div class="text-sm">
-                            <a href="#" id="forgot-password-link" class="font-medium text-blue-600 hover:text-blue-500">
-                                ¿Olvidó su contraseña o es su primera vez?
-                            </a>
-                        </div>
-                    </div>
-
                     <div>
                         <button type="submit"
                                 class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                            Ingresar
+                            Ver Carnet Digital
                         </button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <div id="dashboard-screen" class="hidden">
-            <div class="flex">
-                <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-0 md:hidden z-30 pointer-events-none transition-opacity duration-300"></div>
-
-                <button id="menu-button" class="md:hidden fixed top-4 left-4 z-40 p-2 bg-blue-600 text-white rounded-lg shadow-lg">
-                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
-                </button>
-
-                <nav id="sidebar" class="w-64 bg-gray-800 text-white p-4 fixed h-full z-40 transition-transform duration-300 mobile-menu-closed md:relative md:translate-x-0 flex flex-col">
-                    <div class="flex items-center space-x-3 mb-8">
-                        <svg class="h-8 w-8 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
-                        </svg>
-                        <span class="text-2xl font-bold">APS Salud</span>
-                    </div>
-
-                    <p class="text-sm text-gray-400 mb-2">Bienvenido,</p>
-                    <h3 class="text-lg font-semibold mb-6 truncate" id="affiliate-name">Juan José de la Cruz</h3>
-                    
-                    <ul class="space-y-2 flex-1">
-                        <li>
-                            <a href="#" class="nav-link active" data-target="datos-personales">
-                                <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
-                                Datos Personales
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="nav-link" data-target="datos-afiliacion">
-                                <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-9.75A1.125 1.125 0 013 20.625v-9.75c0-.621.504-1.125 1.125-1.125H6.75m12 0c0-.621-.504-1.125-1.125-1.125H9.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125v-1.5z" /></svg>
-                                Datos de Afiliación
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="nav-link" data-target="nucleo-familiar">
-                                <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 00-12.728 0M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 01-1.591.659h-1.844a2.25 2.25 0 01-1.591-.659L4.18 13.87a2.25 2.25 0 01-.659-1.591V6.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" /></svg>
-                                Núcleo Familiar
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" class="nav-link" data-target="certificaciones-carnet">
-                                <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
-                                Certificaciones y Carnet
-                            </a>
-                        </li>
-                    </ul>
-                    
-                    <div class="mt-4 pt-4 border-t border-gray-700">
-                        <a href="#" id="logout-button" class="nav-link !text-red-400 hover:!bg-red-800 hover:!text-white">
-                            <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
-                            Cerrar Sesión
-                        </a>
-                    </div>
-                </nav>
-
-                <main class="flex-1 p-4 md:p-10 md:ml-64">
-                    
-                    <section id="datos-personales" class="content-section active">
-                        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
-                            <h2 class="text-2xl font-bold text-gray-800 mb-6">Datos del Afiliado</h2>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Primer Nombre</label>
-                                    <div class="readonly-field" id="afiliado-nombre1">Juan</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Segundo Nombre</label>
-                                    <div class="readonly-field" id="afiliado-nombre2">José</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Primer Apellido</label>
-                                    <div class="readonly-field" id="afiliado-apellido1">De la Cruz</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Segundo Apellido</label>
-                                    <div class="readonly-field" id="afiliado-apellido2">Pérez</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Cédula o NUI</label>
-                                    <div class="readonly-field" id="afiliado-cedula">001-1234567-8</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Código Póliza</label>
-                                    <div class="readonly-field" id="afiliado-poliza">987654-01</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">NSS</label>
-                                    <div class="readonly-field" id="afiliado-nss">123456789</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Fecha de Nacimiento</label>
-                                    <div class="readonly-field" id="afiliado-fecha-nacimiento">15/05/1985</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Nacionalidad</label>
-                                    <div class="readonly-field">Dominicana</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Género</label>
-                                    <div class="readonly-field">Masculino</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Tipo Sangre</label>
-                                    <div class="readonly-field">O+</div>
-                                </div>
-                                <div>
-                                    <label for="estado-civil" class="block text-sm font-medium text-gray-700">Estado Civil (Modificable)</label>
-                                    <select id="estado-civil" name="estado-civil" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
-                                        <option>Soltero(a)</option>
-                                        <option selected>Casado(a)</option>
-                                        <option>Divorciado(a)</option>
-                                        <option>Unión Libre</option>
-                                        <option>Viudo(a)</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="mt-8 text-right">
-                                <button id="save-affiliate-button" class="py-2 px-6 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
-                                    Guardar Datos del Afiliado
-                                </button>
-                                <span id="save-affiliate-msg" class="text-green-600 ml-4" style="display: none;">¡Datos del Afiliado actualizados!</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-xl shadow-lg">
-                            <h2 class="text-2xl font-bold text-gray-800 mb-6">Datos de Contacto</h2>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
-                                <div>
-                                    <label for="celular" class="block text-sm font-medium text-gray-700">Celular (Modificable)</label>
-                                    <input type="tel" id="celular" name="celular" value="809-555-1234" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
-                                </div>
-                                <div>
-                                    <label for="correo" class="block text-sm font-medium text-gray-700">Correo (Modificable)</label>
-                                    <input type="email" id="correo" name="correo" value="juan.delacruz@correo.com" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
-                                </div>
-                                <div class="col-span-1">
-                                    <label for="ciudad" class="block text-sm font-medium text-gray-700">Ciudad (Modificable)</label>
-                                    <input type="text" id="ciudad" name="ciudad" value="Santo Domingo" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
-                                </div>
-                                <div>
-                                    <label for="provincia" class="block text-sm font-medium text-gray-700">Provincia (Modificable)</label>
-                                    <input type="text" id="provincia" name="provincia" value="Distrito Nacional" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
-                                </div>
-                                <div>
-                                    <label for="region" class="block text-sm font-medium text-gray-700">Región (Modificable)</label>
-                                    <input type="text" id="region" name="region" value="Ozama" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm">
-                                </div>
-                            </div>
-                            <div class="mt-8 text-right">
-                                <button id="save-contact-button" class="py-2 px-6 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                    Guardar Datos de Contacto
-                                </button>
-                                <span id="save-contact-msg" class="text-green-600 ml-4" style="display: none;">¡Datos de contacto actualizados!</span>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section id="datos-afiliacion" class="content-section">
-                        <div class="bg-white p-6 rounded-xl shadow-lg">
-                            <h2 class="text-2xl font-bold text-gray-800 mb-6">Datos de Afiliación</h2>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Empleador o Empresa de Trabajo</label>
-                                    <div class="readonly-field">Empresa Dominicana S.R.L.</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">RNC Empresa de Trabajo</label>
-                                    <div class="readonly-field">1-01-12345-6</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Sede principal de Empresa de Trabajo</label>
-                                    <div class="readonly-field">Santo Domingo, D.N.</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Tipo de Afiliación</label>
-                                    <div class="readonly-field">Titular</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Fecha de Afiliación (Inicio de Contrato)</label>
-                                    <div class="readonly-field">01/01/2010</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Último Periodo de Cobertura</label>
-                                    <div class="readonly-field">Octubre 2025</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Estado de Afiliación</label>
-                                    <div class="readonly-field text-green-600 font-semibold">Activo</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Plan de Salud</label>
-                                    <div class="readonly-field">Plan Básico Plus</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Estudiante</label>
-                                    <div class="readonly-field">No</div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-500">Discapacitado(a)</label>
-                                    <div class="readonly-field">No</div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section id="nucleo-familiar" class="content-section">
-                        <div class="bg-white p-6 rounded-xl shadow-lg">
-                            <h2 class="text-2xl font-bold text-gray-800 mb-6">Núcleo Familiar</h2>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Completo</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cédula / NUI</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cód. Póliza</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NSS</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parentesco</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">María Elena Gómez</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">001-9876543-2</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">987654-02</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">987654321</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Esposa</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Carlos José de la Cruz</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">N/A (Menor)</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">987654-03</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">123450987</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Hijo</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Ana María Pérez (Madre)</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">001-0012345-0</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">987654-04</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">456789012</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Dependiente (Padre)</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactivo</span>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section id="certificaciones-carnet" class="content-section">
-                        <div class="bg-white p-6 rounded-xl shadow-lg">
-                            <h2 class="text-2xl font-bold text-gray-800 mb-8">Certificaciones y Carnet</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                
-                                <a href="#" class="group block p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-blue-50 hover:shadow-md transition-all">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 bg-blue-100 rounded-full p-3">
-                                            <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        </div>
-                                        <div class="ml-4">
-                                            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-700">Estado de Afiliación</h3>
-                                            <p class="text-sm text-gray-500">Descargar certificación</p>
-                                        </div>
-                                    </div>
-                                </a>
-
-                                <a href="#" class="group block p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-blue-50 hover:shadow-md transition-all">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 bg-blue-100 rounded-full p-3">
-                                            <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m-1.5 0v-1.5a2.25 2.25 0 012.25-2.25h3.75a2.25 2.25 0 012.25 2.25v1.5m-6 13.5h6.75a2.25 2.25 0 002.25-2.25V9a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
-                                        </div>
-                                        <div class="ml-4">
-                                            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-blue-700">Aportes Recibidos y/o Notificación de Coberturas</h3>
-                                            <p class="text-sm text-gray-500">Ver historial de aportes</p>
-                                        </div>
-                                    </div>
-                                </a>
-
-                                <a href="#" id="show-carnet-button" class="group block p-6 bg-blue-600 text-white rounded-lg border border-blue-700 hover:bg-blue-700 hover:shadow-xl transition-all">
-                                    <div class="flex items-center">
-                                        <div class="flex-shrink-0 bg-blue-700 rounded-full p-3">
-                                            <svg class="w-6 h-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h6m-6 2.25h6M12 9v10.5m3.75-10.5H21a.75.75 0 01.75.75v10.5a.75.75 0 01-.75.75h-5.25a.75.75 0 01-.75-.75V9.75a.75.75 0 01.75-.75z" /></svg>
-                                        </div>
-                                        <div class="ml-4">
-                                            <h3 class="text-lg font-semibold text-white">Carnet APS</h3>
-                                            <p class="text-sm text-blue-200">Ver carnet digital</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                    </section>
-                </main>
-            </div>
-        </div>
-
-
-        <div id="forgot-password-modal" class="modal fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-50 p-4">
-            <div class="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full relative">
-                <button class="close-modal absolute top-4 right-4 text-gray-400 hover:text-gray-700" data-target="forgot-password-modal">
-                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Recuperar Contraseña</h2>
-                <p class="text-gray-600 mb-6">Seleccione dónde desea recibir el enlace para restablecer su contraseña (recibirá una contraseña temporal).</p>
-                
-                <div id="recovery-options">
-                    <div classs="space-y-4">
-                        <fieldset>
-                            <legend class="sr-only">Método de recuperación</legend>
-                            <div class="space-y-4">
-                                <label for="send-email" class="flex items-center p-4 border rounded-lg has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 cursor-pointer transition-all">
-                                    <input id="send-email" name="recovery-method" type="radio" checked class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                    <span class="ml-3 block text-sm font-medium text-gray-700">
-                                        Enviar a mi correo <span class="font-normal text-gray-500">(ju***@correo.com)</span>
-                                    </span>
-                                </label>
-                                <label for="send-sms" class="flex items-center p-4 border rounded-lg has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 cursor-pointer transition-all">
-                                    <input id="send-sms" name="recovery-method" type="radio" class="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500">
-                                    <span class="ml-3 block text-sm font-medium text-gray-700">
-                                        Enviar a mi celular <span class="font-normal text-gray-500">(809-***-1234)</span>
-                                    </span>
-                                </label>
-                            </div>
-                        </fieldset>
-                    </div>
-                    <button id="send-recovery-link-button" class="mt-8 w-full py-3 px-4 rounded-lg text-base font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
-                        Enviar Enlace
-                    </button>
-                </div>
-                
-                <div id="recovery-message" class="hidden text-center p-4 bg-green-50 rounded-lg border border-green-200">
-                    <h3 class="text-lg font-medium text-green-800">¡Enlace Enviado!</h3>
-                    <p class="mt-2 text-sm text-green-700">Se ha enviado un enlace con una contraseña temporal. Por favor revise su correo o mensajes SMS para completar el proceso e ingresar.</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="carnet-modal" class="modal fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-50 p-4">
-            <div class="bg-white rounded-xl shadow-lg p-6 max-w-md w-full relative">
-                <button class="close-modal absolute top-4 right-4 text-gray-400 hover:text-gray-700" data-target="carnet-modal">
-                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                </button>
-                
-                <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">Carnet Digital APS</h2>
+        <div id="carnet-confirmation-screen" class="hidden min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
+            <div class="max-w-md w-full relative">
+                <h2 class="text-3xl font-bold text-blue-600 mb-8 text-center">¡Afiliación Confirmada!</h2>
                 
                 <div id="carnet-card" class="bg-gradient-to-br from-blue-600 to-blue-800 text-white rounded-xl shadow-2xl p-6">
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-2xl font-bold">APS Salud</span>
                         <svg class="h-8 w-8 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h6m-6 2.25h6M12 9v10.5m3.75-10.5H21a.75.75 0 01.75.75v10.5a.75.75 0 01-.75.75h-5.25a.75.75 0 01-.75-.75V9.75a.75.75 0 01.75-.75z" /></svg>
-                        </svg>
                     </div>
                     
                     <div class="mb-6">
                         <div class="text-xs uppercase opacity-70">Nombre del Afiliado</div>
-                        <div class="text-xl font-semibold" id="carnet-nombre-afiliado">Juan José de la Cruz Pérez</div>
+                        <div class="text-xl font-semibold" id="carnet-nombre-afiliado">Nombre Completo del Afiliado</div>
                     </div>
                     
                     <div class="flex space-x-6">
                         <div>
                             <div class="text-xs uppercase opacity-70">Cédula / NUI</div>
-                            <div class="text-lg font-medium" id="carnet-cedula">001-1234567-8</div>
+                            <div class="text-lg font-medium" id="carnet-cedula">000-0000000-0</div>
                         </div>
                         <div>
                             <div class="text-xs uppercase opacity-70">Código Póliza</div>
-                            <div class="text-lg font-medium" id="carnet-poliza">987654-01</div>
+                            <div class="text-lg font-medium" id="carnet-poliza">00000-00000-00</div>
                         </div>
                     </div>
                     
@@ -522,21 +115,24 @@
                     </div>
                 </div>
                 
-                <p class="text-center text-xs text-gray-500 mt-4">Este carnet digital es válido para servicios a nivel nacional.</p>
+                <p class="text-center text-sm text-gray-500 mt-4">Puede descargar este carnet para imprimirlo a tamaño de tarjeta de crédito (formato ID-1: 85.6 mm x 53.98 mm).</p>
                 
                 <button id="download-carnet-pdf" class="mt-6 w-full py-3 px-4 rounded-lg text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-colors flex items-center justify-center">
                     <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                    Descargar como PDF
+                    Descargar Carnet como PDF
                 </button>
                 <div id="pdf-loading-message" class="hidden mt-2 text-center text-sm text-blue-600">
                     Generando PDF...
                 </div>
+                
+                <button id="logout-button" class="mt-4 w-full py-2 px-4 rounded-lg text-base font-medium text-red-500 bg-transparent border border-red-500 hover:bg-red-50 transition-colors">
+                    Cerrar Sesión y Volver
+                </button>
             </div>
         </div>
 
     </div> <script>
-        // Importación de jsPDF (requiere el uso de window.jspdf.jsPDF, ya que se carga mediante script CDN)
-        const { jsPDF } = window.jspdf;
+        const { jsPDF } = window.jspdf; // Importación de jsPDF
 
         // Variables globales para datos de afiliados
         let affiliateData = [];
@@ -544,11 +140,11 @@
 
         /**
          * Función para parsear el contenido simulado del CSV.
-         * Asume el orden: Nombre;Cedula;NSS;Poliza;FechaNacimiento
          */
         function parseCSV(csvText) {
             const lines = csvText.trim().split('\n');
-            const keys = ["Nombre", "Cedula", "NSS", "Poliza", "FechaNacimiento"];
+            // Mapeo basado en el orden de las columnas: Nombre;Cedula;NSS;Poliza;FechaNacimiento
+            const keys = ["Nombre", "Cedula", "NSS", "Poliza", "FechaNacimiento"]; 
             
             return lines.map(line => {
                 const values = line.split(';');
@@ -561,55 +157,34 @@
         }
 
         /**
-         * Simula la carga de datos desde el archivo afiliados.csv
+         * Simula la carga de datos desde el archivo afiliados.csv de GitHub.
+         * Se incluyen ambos registros válidos.
          */
         async function loadAffiliateData() {
             // SIMULACIÓN DEL CONTENIDO DE afiliados.csv
-            // Incluye el registro inicial y el de YOMAIKER RAMIREZ MOTA
             const csvContent = `CRISTIAN AGUSTIN ULLOA MARTINEZ;001-0219588-0;2434133;00525-00018-04;13/06/1974
 YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             
             try {
                 affiliateData = parseCSV(csvContent);
-                console.log('Datos de afiliados cargados y parseados correctamente:', affiliateData);
+                console.log('Datos de afiliados cargados y parseados correctamente.', affiliateData);
             } catch (error) {
                 console.error("Error al cargar o procesar el CSV simulado:", error);
             }
         }
 
         /**
-         * Actualiza los campos del dashboard con los datos del afiliado logueado.
+         * Actualiza los campos del carnet con los datos del afiliado logueado.
          */
-        function updateDashboard(affiliate) {
-            // 1. BARRA LATERAL (SIDEBAR)
-            document.getElementById('affiliate-name').textContent = affiliate.Nombre;
-
-            // 2. DATOS PERSONALES (Solo los campos provenientes del login)
-            // Cédula/NUI
-            document.getElementById('afiliado-cedula').textContent = affiliate.Cedula;
-            // Código Póliza
-            document.getElementById('afiliado-poliza').textContent = affiliate.Poliza;
-            // NSS
-            document.getElementById('afiliado-nss').textContent = affiliate.NSS;
-            // Fecha de Nacimiento
-            document.getElementById('afiliado-fecha-nacimiento').textContent = affiliate.FechaNacimiento;
+        function updateCarnet(affiliate) {
+            document.getElementById('carnet-nombre-afiliado').textContent = affiliate.Nombre; 
+            document.getElementById('carnet-cedula').textContent = affiliate.Cedula; 
+            document.getElementById('carnet-poliza').textContent = affiliate.Poliza; 
             
-            // Simulación de nombres y apellidos (división simple)
-            const nameParts = affiliate.Nombre.split(' ');
-            if (nameParts.length >= 2) {
-                document.getElementById('afiliado-nombre1').textContent = nameParts[0];
-                document.getElementById('afiliado-apellido1').textContent = nameParts[nameParts.length - 2];
-                document.getElementById('afiliado-apellido2').textContent = nameParts[nameParts.length - 1];
-                document.getElementById('afiliado-nombre2').textContent = nameParts.slice(1, -2).join(' ');
-            } else {
-                document.getElementById('afiliado-nombre1').textContent = affiliate.Nombre;
-            }
-
-
-            // 3. MODAL DE CARNET
-            document.getElementById('carnet-nombre-afiliado').textContent = affiliate.Nombre; // Nombre Completo
-            document.getElementById('carnet-cedula').textContent = affiliate.Cedula; // Cédula/NUI
-            document.getElementById('carnet-poliza').textContent = affiliate.Poliza; // Código Póliza
+            // También actualizamos los valores de los inputs de login para la descarga
+            document.getElementById('cedula').value = affiliate.Cedula;
+            document.getElementById('poliza').value = affiliate.Poliza;
+            document.getElementById('fecha-nacimiento').value = affiliate.FechaNacimiento;
         }
 
 
@@ -618,35 +193,10 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             loadAffiliateData();
 
             // Elementos de pantalla
-            const loginScreen = document.getElementById('login-screen');
-            const dashboardScreen = document.getElementById('dashboard-screen');
+            const loginScreen = document.getElementById('carnet-login-screen');
+            const confirmationScreen = document.getElementById('carnet-confirmation-screen');
             const loginForm = document.getElementById('login-form');
             const logoutButton = document.getElementById('logout-button');
-            const navLinks = document.querySelectorAll('.nav-link');
-            const contentSections = document.querySelectorAll('.content-section');
-            
-            // Elementos de la barra lateral (Sidebar) y móvil
-            const sidebar = document.getElementById('sidebar');
-            const menuButton = document.getElementById('menu-button');
-            const sidebarOverlay = document.getElementById('sidebar-overlay');
-
-            // Modales
-            const forgotPasswordLink = document.getElementById('forgot-password-link');
-            const carnetModal = document.getElementById('carnet-modal');
-            const showCarnetButton = document.getElementById('show-carnet-button');
-            const modals = document.querySelectorAll('.modal');
-            const closeModalButtons = document.querySelectorAll('.close-modal');
-
-            // Recuperación de contraseña
-            const sendRecoveryLinkButton = document.getElementById('send-recovery-link-button');
-            const recoveryOptions = document.getElementById('recovery-options');
-            const recoveryMessage = document.getElementById('recovery-message');
-
-            // Guardar datos
-            const saveAffiliateButton = document.getElementById('save-affiliate-button');
-            const saveAffiliateMsg = document.getElementById('save-affiliate-msg');
-            const saveContactButton = document.getElementById('save-contact-button');
-            const saveContactMsg = document.getElementById('save-contact-msg');
             
             // Elementos de PDF
             const downloadCarnetPdfButton = document.getElementById('download-carnet-pdf');
@@ -654,76 +204,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             const pdfLoadingMessage = document.getElementById('pdf-loading-message');
 
 
-            // --- LÓGICA DE NAVEGACIÓN Y RESPONSIVE ---
-
-            // Función para mostrar la sección de contenido
-            function showSection(targetId) {
-                // Ocultar todas las secciones
-                contentSections.forEach(section => {
-                    section.classList.remove('active');
-                });
-                // Remover 'active' de todos los enlaces
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                });
-
-                // Mostrar la sección objetivo y activar el enlace
-                const targetSection = document.getElementById(targetId);
-                const targetLink = document.querySelector(`.nav-link[data-target="${targetId}"]`);
-                
-                if (targetSection) {
-                    targetSection.classList.add('active');
-                }
-                if (targetLink) {
-                    targetLink.classList.add('active');
-                }
-                
-                // Cerrar menú móvil si está abierto
-                if (window.innerWidth < 768) {
-                    toggleMobileMenu(false);
-                }
-            }
-
-            // Manejador de clics en la barra de navegación
-            navLinks.forEach(link => {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    showSection(this.dataset.target);
-                });
-            });
-
-            // Lógica para abrir/cerrar menú móvil
-            function toggleMobileMenu(open) {
-                if (open === true) {
-                    sidebar.classList.remove('mobile-menu-closed');
-                    sidebar.classList.add('mobile-menu-open');
-                    sidebarOverlay.classList.remove('opacity-0', 'pointer-events-none');
-                    sidebarOverlay.classList.add('opacity-50');
-                } else if (open === false) {
-                    sidebar.classList.remove('mobile-menu-open');
-                    sidebar.classList.add('mobile-menu-closed');
-                    sidebarOverlay.classList.remove('opacity-50');
-                    sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
-                } else {
-                    // Toggle state
-                    sidebar.classList.toggle('mobile-menu-closed');
-                    sidebar.classList.toggle('mobile-menu-open');
-                    sidebarOverlay.classList.toggle('opacity-0');
-                    sidebarOverlay.classList.toggle('opacity-50');
-                    sidebarOverlay.classList.toggle('pointer-events-none');
-                }
-            }
-            
-            menuButton.addEventListener('click', () => toggleMobileMenu());
-            sidebarOverlay.addEventListener('click', () => toggleMobileMenu(false));
-            
-            // Inicializar la barra lateral en estado cerrado en móvil
-            if (window.innerWidth < 768) {
-                sidebar.classList.add('mobile-menu-closed');
-            }
-
-
-            // --- LÓGICA DE LOGIN Y LOGOUT (CORREGIDA PARA USAR CSV) ---
+            // --- LÓGICA DE LOGIN ---
 
             // Simular Login
             loginForm.addEventListener('submit', function (e) {
@@ -733,6 +214,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 const poliza = document.getElementById('poliza').value.trim();
                 const fechaNacimiento = document.getElementById('fecha-nacimiento').value.trim();
 
+                // Busca la coincidencia de los 3 campos en el array de datos
                 loggedInAffiliate = affiliateData.find(affiliate => 
                     affiliate.Cedula === cedula && 
                     affiliate.Poliza === poliza && 
@@ -740,95 +222,23 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 );
 
                 if (loggedInAffiliate) {
-                    // Actualizar el dashboard con los datos del afiliado
-                    updateDashboard(loggedInAffiliate);
+                    // 1. Actualizar el carnet con los datos del afiliado
+                    updateCarnet(loggedInAffiliate);
 
+                    // 2. Transición de pantallas
                     loginScreen.style.display = 'none';
-                    dashboardScreen.style.display = 'block';
-                    showSection('datos-personales');
+                    confirmationScreen.style.display = 'flex'; // Usamos flex para centrar
                 } else {
                     alert('Credenciales no válidas. Por favor, verifique Cédula, Póliza y Fecha de Nacimiento.');
                 }
             });
 
-            // Simular Logout
+            // Simular Logout (Volver al login)
             logoutButton.addEventListener('click', function (e) {
                 e.preventDefault();
-                loggedInAffiliate = null; // Limpiar datos de sesión
-                dashboardScreen.style.display = 'none';
-                loginScreen.style.display = 'flex'; // Usamos flex para centrar
-            });
-
-            // --- LÓGICA DE MODALES ---
-
-            // Abrir modal de Olvidó Contraseña
-            forgotPasswordLink.addEventListener('click', function (e) {
-                e.preventDefault();
-                document.getElementById('forgot-password-modal').classList.add('active');
-                // Asegurar que las opciones de recuperación estén visibles al abrir
-                recoveryOptions.classList.remove('hidden');
-                recoveryMessage.classList.add('hidden');
-            });
-
-            // Mostrar Carnet Digital
-            showCarnetButton.addEventListener('click', function (e) {
-                e.preventDefault();
-                if (loggedInAffiliate) {
-                    carnetModal.classList.add('active');
-                } else {
-                    alert('Debe iniciar sesión para ver su carnet digital.');
-                }
-            });
-
-            // Cerrar modales genérico
-            closeModalButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    modals.forEach(modal => modal.classList.remove('active'));
-                });
-            });
-
-            // Lógica de recuperación de contraseña (simulación)
-            sendRecoveryLinkButton.addEventListener('click', function() {
-                // Simular el proceso de envío
-                recoveryOptions.classList.add('hidden');
-                recoveryMessage.classList.remove('hidden');
-            });
-
-
-            // --- LÓGICA DE GUARDADO DE DATOS (MOCKUP) ---
-
-            // Guardar Datos de Afiliado (Estado Civil)
-            saveAffiliateButton.addEventListener('click', function () {
-                // Simulación de guardado exitoso
-                saveAffiliateMsg.style.display = 'inline';
-                saveAffiliateButton.textContent = 'Guardado';
-                saveAffiliateButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-                saveAffiliateButton.classList.add('bg-gray-400');
-                
-                // Reiniciar el mensaje después de 3 segundos
-                setTimeout(() => {
-                    saveAffiliateMsg.style.display = 'none';
-                    saveAffiliateButton.textContent = 'Guardar Datos del Afiliado';
-                    saveAffiliateButton.classList.remove('bg-gray-400');
-                    saveAffiliateButton.classList.add('bg-green-600', 'hover:bg-green-700');
-                }, 3000);
-            });
-
-            // Guardar Datos de Contacto
-            saveContactButton.addEventListener('click', function () {
-                // Simulación de guardado exitoso
-                saveContactMsg.style.display = 'inline';
-                saveContactButton.textContent = 'Guardado';
-                saveContactButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                saveContactButton.classList.add('bg-gray-400');
-
-                // Reiniciar el mensaje después de 3 segundos
-                setTimeout(() => {
-                    saveContactMsg.style.display = 'none';
-                    saveContactButton.textContent = 'Guardar Datos de Contacto';
-                    saveContactButton.classList.remove('bg-gray-400');
-                    saveContactButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
-                }, 3000);
+                loggedInAffiliate = null; 
+                confirmationScreen.style.display = 'none';
+                loginScreen.style.display = 'flex'; 
             });
 
 
@@ -842,24 +252,25 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
 
                 // Usamos html2canvas para renderizar el DIV del carnet como una imagen
                 html2canvas(carnetCard, { 
-                    scale: 2, // Aumenta la resolución de la imagen capturada para mejor calidad de PDF
-                    useCORS: true // Necesario si hay imágenes o fuentes externas (aunque aquí no hay)
+                    scale: 3, // Aumenta la resolución
+                    useCORS: true 
                 }).then(canvas => {
-                    // Crea una URL de datos para la imagen
                     const imgData = canvas.toDataURL('image/png');
                     
-                    // Inicializa jsPDF en modo horizontal (landscape) para la forma de carnet
-                    const pdf = new jsPDF('l', 'mm', [90, 140]); // Dimensiones aproximadas de carnet en horizontal (90x140mm)
-
-                    // Calcula dimensiones para que la imagen ocupe todo el espacio del PDF
-                    const imgWidth = 140; 
-                    const imgHeight = canvas.height * imgWidth / canvas.width;
+                    // Dimensiones ID-1 (Carnet) en mm: 85.6 x 53.98. Usamos un poco más de margen.
+                    const widthInMM = 85.6;
+                    const heightInMM = 53.98;
                     
-                    // Añade la imagen al PDF (x=0, y=0)
-                    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                    // Inicializa jsPDF en modo horizontal (landscape), especificando el tamaño del carnet
+                    const pdf = new jsPDF('l', 'mm', [widthInMM + 4, heightInMM + 4]); // +4 para un pequeño margen
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    
+                    // Calcula el tamaño de la imagen para que encaje perfectamente dentro del PDF
+                    pdf.addImage(imgData, 'PNG', 2, 2, pdfWidth - 4, pdfHeight - 4); // 2mm de margen a cada lado
 
                     // Descargar el archivo
-                    pdf.save(`Carnet_APS_${document.getElementById('cedula').value}.pdf`);
+                    pdf.save(`Carnet_APS_${loggedInAffiliate.Cedula}.pdf`);
 
                     // Restaurar botón y ocultar mensaje de carga
                     downloadCarnetPdfButton.disabled = false;
@@ -868,12 +279,12 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                     pdfLoadingMessage.classList.add('hidden');
                 }).catch(error => {
                     console.error("Error al generar el PDF:", error);
+                    alert("Ocurrió un error al generar el PDF. Por favor, intente de nuevo.");
                     // Restaurar botón en caso de error
                     downloadCarnetPdfButton.disabled = false;
                     downloadCarnetPdfButton.classList.remove('bg-gray-400');
                     downloadCarnetPdfButton.classList.add('bg-green-600', 'hover:bg-green-700');
                     pdfLoadingMessage.classList.add('hidden');
-                    // Aunque no usamos alert(), un console.error es suficiente para el desarrollo
                 });
             });
 
