@@ -250,7 +250,7 @@
                 const response = await fetch(CSV_URL);
                 if (!response.ok) throw new Error(`Error ${response.status} al cargar el CSV. Verifique la URL RAW y CORS.`);
                 
-                // Carga de datos con decodificación Windows-1252 para Ñ, tildes (solución temporal)
+                // Carga de datos con decodificación Windows-1252 para Ñ, tildes (solución temporal para CSV no-UTF8)
                 const buffer = await response.arrayBuffer(); 
                 const decoder = new TextDecoder('windows-1252'); 
                 const csvText = decoder.decode(buffer);
@@ -343,14 +343,13 @@
             
             const dataFields = {
                 Nombre: affiliate.Nombre,
-                Cedula: affiliate.Cedula,
+                Cedula: affiliate.DatosCedula, // Usar el campo decodificado
                 NSS: affiliate.NSS,
                 Poliza: affiliate.Poliza,
                 FechaNacimiento: affiliate.FechaNacimiento
             };
 
             for (const key in COORDINATES) {
-                // Las coordenadas proporcionadas son: [X_PIXEL, Y_PIXEL]
                 const [x_px_coord, y_px_coord] = COORDINATES[key];
                 
                 // Conversión de píxeles a milímetros
@@ -378,39 +377,49 @@
             ]);
 
             let statusMessage = "";
-            let canProceed = true;
+            let canProceed = true; // Asumir éxito hasta que falle la carga crítica
 
-            // Lógica estricta: Si el CSV no carga, no se puede continuar (canProceed = false).
+            // Lógica estricta: Si el CSV no carga, no se puede continuar.
             if (!dataLoaded || affiliateData.length === 0) {
-                statusMessage = "Error CRÍTICO: No se pudieron cargar datos de afiliación válidos del CSV. Verifique la URL RAW.";
+                statusMessage = "Error CRÍTICO: No se pudieron cargar datos de afiliación válidos del CSV. Verifique la URL RAW y la consola.";
                 dataLoadingMessage.classList.add('text-red-600');
                 canProceed = false;
             } else {
-                // Éxito en la carga de data crítica
-                statusMessage = "Sistema listo para validar datos.";
+                // Éxito en la carga de data crítica: El mensaje debe quedar vacío.
+                statusMessage = ""; 
             }
             
-            // Si la imagen falla, es una advertencia, pero solo se muestra si la data crítica cargó.
+            // Si la imagen falla, es una advertencia, solo si la data crítica cargó.
             if (!imageLoaded) {
-                 statusMessage += " Advertencia: La plantilla de imagen del carnet falló al cargar. El PDF se generará sin fondo.";
-                 if(canProceed) dataLoadingMessage.classList.add('text-orange-600'); 
+                 if(canProceed) { 
+                    statusMessage = "Advertencia: La plantilla de imagen del carnet falló al cargar. El PDF se generará sin fondo.";
+                    dataLoadingMessage.classList.add('text-orange-600');
+                 }
             }
 
-            // Habilitar el botón si la data crítica cargó (canProceed es true)
+            // Habilitar o deshabilitar el botón y actualizar mensaje final
             if (canProceed) {
-                dataLoadingMessage.classList.remove('text-red-600'); 
-                if (!imageLoaded) {
-                     dataLoadingMessage.classList.add('text-orange-600'); 
-                     dataLoadingMessage.classList.remove('text-green-600');
-                } else {
-                     dataLoadingMessage.classList.add('text-green-600');
-                     dataLoadingMessage.classList.remove('text-orange-600');
-                }
+                // Limpiar estilos de error si la carga fue exitosa o solo hubo advertencia
+                dataLoadingMessage.classList.remove('text-red-600', 'text-gray-500'); 
                 
+                if (statusMessage === "") {
+                    // Carga completa y exitosa (ambos OK)
+                    dataLoadingMessage.classList.add('text-green-600');
+                } else {
+                    // Carga exitosa con advertencia (CSV OK, imagen KO)
+                    dataLoadingMessage.classList.add('text-orange-600');
+                }
+
                 submitButton.disabled = false;
                 submitButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
                 submitButton.classList.add('bg-aps-blue', 'hover:bg-aps-blue-hover');
+            } else {
+                 // Error crítico, dejar el botón deshabilitado y mostrar el mensaje de error crítico
+                 dataLoadingMessage.classList.remove('text-gray-500'); 
+                 dataLoadingMessage.classList.add('text-red-600');
             }
+            
+            // Si statusMessage es "", el div dataLoadingMessage queda vacío, como se solicitó.
             dataLoadingMessage.textContent = statusMessage.trim();
 
 
@@ -427,7 +436,7 @@
                 errorMessage.classList.add('hidden'); 
                 
                 if (!canProceed) {
-                    alert("Error: No se pudo cargar la data de afiliados. Por favor, recargue la página o verifique la URL RAW del CSV.");
+                    alert("Error: El sistema no cargó la data de afiliados. Por favor, recargue la página o verifique la URL RAW del CSV.");
                     return;
                 }
 
