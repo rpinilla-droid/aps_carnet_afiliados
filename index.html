@@ -132,7 +132,7 @@
         </div>
 
     </div> <script>
-        const { jsPDF } = window.jspdf; // Importación de jsPDF
+        const { jsPDF } = window.jspdf; 
 
         // Variables globales para datos de afiliados
         let affiliateData = [];
@@ -157,8 +157,7 @@
         }
 
         /**
-         * Simula la carga de datos desde el archivo afiliados.csv de GitHub.
-         * Se incluyen ambos registros válidos.
+         * Simula la carga de datos desde el archivo afiliados.csv.
          */
         async function loadAffiliateData() {
             // SIMULACIÓN DEL CONTENIDO DE afiliados.csv
@@ -180,11 +179,6 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             document.getElementById('carnet-nombre-afiliado').textContent = affiliate.Nombre; 
             document.getElementById('carnet-cedula').textContent = affiliate.Cedula; 
             document.getElementById('carnet-poliza').textContent = affiliate.Poliza; 
-            
-            // También actualizamos los valores de los inputs de login para la descarga
-            document.getElementById('cedula').value = affiliate.Cedula;
-            document.getElementById('poliza').value = affiliate.Poliza;
-            document.getElementById('fecha-nacimiento').value = affiliate.FechaNacimiento;
         }
 
 
@@ -244,6 +238,11 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
 
             // --- LÓGICA DE DESCARGA DE PDF ---
             downloadCarnetPdfButton.addEventListener('click', function () {
+                if (!loggedInAffiliate) {
+                    alert("Debe iniciar sesión para descargar el carnet.");
+                    return;
+                }
+                
                 // Deshabilitar botón y mostrar mensaje de carga
                 downloadCarnetPdfButton.disabled = true;
                 downloadCarnetPdfButton.classList.remove('bg-green-600', 'hover:bg-green-700');
@@ -257,17 +256,18 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 }).then(canvas => {
                     const imgData = canvas.toDataURL('image/png');
                     
-                    // Dimensiones ID-1 (Carnet) en mm: 85.6 x 53.98. Usamos un poco más de margen.
+                    // Dimensiones ID-1 (Carnet) en mm: 85.6 x 53.98.
                     const widthInMM = 85.6;
                     const heightInMM = 53.98;
                     
                     // Inicializa jsPDF en modo horizontal (landscape), especificando el tamaño del carnet
-                    const pdf = new jsPDF('l', 'mm', [widthInMM + 4, heightInMM + 4]); // +4 para un pequeño margen
+                    // Se agrega un margen de 4mm (2mm a cada lado)
+                    const pdf = new jsPDF('l', 'mm', [widthInMM + 4, heightInMM + 4]); 
                     const pdfWidth = pdf.internal.pageSize.getWidth();
                     const pdfHeight = pdf.internal.pageSize.getHeight();
                     
-                    // Calcula el tamaño de la imagen para que encaje perfectamente dentro del PDF
-                    pdf.addImage(imgData, 'PNG', 2, 2, pdfWidth - 4, pdfHeight - 4); // 2mm de margen a cada lado
+                    // Añade la imagen capturada al PDF con un margen de 2mm
+                    pdf.addImage(imgData, 'PNG', 2, 2, pdfWidth - 4, pdfHeight - 4); 
 
                     // Descargar el archivo
                     pdf.save(`Carnet_APS_${loggedInAffiliate.Cedula}.pdf`);
