@@ -54,13 +54,21 @@
             z-index: 1;
         }
 
-        /* El contenedor principal de la tarjeta de login para que el círculo se posicione relativo a él */
-        #carnet-login-screen > div { /* Target the div with max-w-md */
+        /* El contenedor principal de la tarjeta para que el círculo se posicione relativo a él */
+        .card-container { 
             position: relative;
             overflow: hidden; /* Para que el círculo no se salga de los bordes redondeados */
         }
-        
-        /* Estilos del portal (manteniendo los originales del archivo subido) */
+
+        /* Sobrescribir el color azul por defecto de Tailwind para el portal con el color corporativo */
+        .bg-blue-600 { background-color: var(--aps-blue); }
+        .hover\:bg-blue-700:hover { background-color: var(--aps-blue-hover); }
+        .text-blue-600 { color: var(--aps-blue); }
+        .border-blue-500 { border-color: var(--aps-blue); }
+        .focus\:ring-blue-500:focus { --tw-ring-color: var(--aps-blue); }
+        .bg-blue-50 { background-color: #eff6ff; } /* mantener un azul claro para fondos */
+
+        /* Estilos del portal */
         .content-section { display: none; animation: fadeIn 0.3s ease-in-out; }
         .content-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -71,14 +79,6 @@
         .nav-link:hover { background-color: #374151; color: white; }
         .nav-link.active { background-color: #2563eb; color: white; font-weight: 600; }
         @media (max-width: 768px) { .mobile-menu-open { transform: translateX(0); } .mobile-menu-closed { transform: translateX(-100%); } }
-        /* Sobrescribir el color azul por defecto de Tailwind para el portal con el color corporativo */
-        .bg-blue-600 { background-color: var(--aps-blue); }
-        .hover\:bg-blue-700:hover { background-color: var(--aps-blue-hover); }
-        .text-blue-600 { color: var(--aps-blue); }
-        .border-blue-500 { border-color: var(--aps-blue); }
-        .focus\:ring-blue-500:focus { --tw-ring-color: var(--aps-blue); }
-        .bg-blue-50 { background-color: #eff6ff; } /* mantener un azul claro para fondos */
-
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -86,7 +86,7 @@
     <div id="app-container">
 
         <div id="carnet-login-screen" class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-            <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+            <div class="card-container max-w-md w-full bg-white rounded-xl shadow-lg p-8">
                 <div class="decorative-circle"></div> 
                 
                 <div class="login-card-content">
@@ -137,35 +137,42 @@
         </div>
 
         <div id="carnet-confirmation-screen" class="hidden min-h-screen flex items-center justify-center bg-gray-50 p-4">
-            <div class="max-w-xl w-full bg-white rounded-xl shadow-lg p-8 text-center">
+            <div class="card-container max-w-xl w-full bg-white rounded-xl shadow-lg p-8 text-center">
                 
-                <h2 class="text-2xl font-bold text-green-600 mb-2 flex items-center justify-center">
-                    <svg class="w-7 h-7 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    El registro de afiliación ha sido encontrado.
-                </h2>
-                <p class="text-gray-700 mb-6">Procede a descargar tu carnet digital.</p>
-                
-                <div class="bg-blue-50 p-4 rounded-lg mb-6 text-sm text-gray-800 text-left space-y-2">
-                    <ul>
-                        <li><span class="font-semibold">Afiliado:</span> <span id="portal-display-nombre"></span></li>
-                        <li><span class="font-semibold">Cédula:</span> <span id="portal-display-cedula"></span></li>
-                        <li><span class="font-semibold">NSS:</span> <span id="portal-display-nss"></span></li> 
-                        <li><span class="font-semibold">Póliza:</span> <span id="portal-display-poliza"></span></li>
-                        <li><span class="font-semibold">Fecha de Nacimiento:</span> <span id="portal-display-fecha-nac"></span></li> 
-                    </ul>
-                </div>
+                <div class="decorative-circle"></div> 
 
-                <button id="download-carnet-pdf-btn" class="w-full py-3 px-4 rounded-lg text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-colors flex items-center justify-center">
-                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                    Descargar Carnet PDF
-                </button>
-                <div id="pdf-loading-message-carnet" class="hidden mt-2 text-center text-aps-blue">
-                    Generando PDF...
+                <div class="login-card-content">
+                    
+                    <img src="https://apsars.do/wp-content/uploads/2023/07/logo-ARS-Web-1-1.png" alt="APS Salud Logo" class="h-10 mb-4 mx-auto">
+
+                    <h2 class="text-2xl font-bold text-green-600 mb-2 flex items-center justify-center">
+                        <svg class="w-7 h-7 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        El registro de afiliación ha sido encontrado.
+                    </h2>
+                    <p class="text-gray-700 mb-6">Procede a descargar tu carnet digital.</p>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg mb-6 text-sm text-gray-800 text-left space-y-2">
+                        <ul>
+                            <li><span class="font-semibold">Afiliado:</span> <span id="portal-display-nombre"></span></li>
+                            <li><span class="font-semibold">Cédula:</span> <span id="portal-display-cedula"></span></li>
+                            <li><span class="font-semibold">NSS:</span> <span id="portal-display-nss"></span></li> 
+                            <li><span class="font-semibold">Póliza:</span> <span id="portal-display-poliza"></span></li>
+                            <li><span class="font-semibold">Fecha de Nacimiento:</span> <span id="portal-display-fecha-nac"></span></li> 
+                        </ul>
+                    </div>
+
+                    <button id="download-carnet-pdf-btn" class="w-full py-3 px-4 rounded-lg text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-colors flex items-center justify-center">
+                        <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                        Descargar Carnet PDF
+                    </button>
+                    <div id="pdf-loading-message-carnet" class="hidden mt-2 text-center text-aps-blue">
+                        Generando PDF...
+                    </div>
+                    
+                    <button id="back-to-login-carnet" class="mt-4 text-sm text-gray-500 hover:text-aps-blue">
+                        Volver al inicio
+                    </button>
                 </div>
-                
-                <button id="back-to-login-carnet" class="mt-4 text-sm text-gray-500 hover:text-aps-blue">
-                    Volver al inicio
-                </button>
             </div>
         </div>
 
@@ -938,8 +945,6 @@
                     saveContactButton.classList.add('bg-aps-blue', 'hover:bg-aps-blue-hover');
                 }, 3000);
             });
-            
-            // Se elimina la función download-carnet-pdf original, ya que el nuevo botón de descarga usa el flujo optimizado.
 
         });
     </script>
