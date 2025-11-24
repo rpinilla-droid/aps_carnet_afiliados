@@ -31,7 +31,8 @@
         .hover\:bg-aps-blue-hover:hover { background-color: var(--aps-blue-hover); }
         .focus\:ring-aps-blue:focus { --tw-ring-color: var(--aps-blue); }
         
-        #login-form input:focus {
+        /* Estilos para los campos de formulario del login */
+        #login-form-carnet input:focus {
             border-color: var(--aps-blue);
         }
 
@@ -54,111 +55,574 @@
         }
 
         /* El contenedor principal de la tarjeta de login para que el círculo se posicione relativo a él */
-        #login-screen > div { /* Target the div with max-w-md */
+        #carnet-login-screen > div { /* Target the div with max-w-md */
             position: relative;
             overflow: hidden; /* Para que el círculo no se salga de los bordes redondeados */
         }
+        
+        /* Estilos del portal (manteniendo los originales del archivo subido) */
+        .content-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .content-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .modal { display: none; }
+        .modal.active { display: flex; }
+        .readonly-field { background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.75rem 1rem; width: 100%; font-size: 0.875rem; }
+        .nav-link { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; color: #d1d5db; transition: all 0.2s ease-in-out; }
+        .nav-link:hover { background-color: #374151; color: white; }
+        .nav-link.active { background-color: #2563eb; color: white; font-weight: 600; }
+        @media (max-width: 768px) { .mobile-menu-open { transform: translateX(0); } .mobile-menu-closed { transform: translateX(-100%); } }
+        /* Sobrescribir el color azul por defecto de Tailwind para el portal con el color corporativo */
+        .bg-blue-600 { background-color: var(--aps-blue); }
+        .hover\:bg-blue-700:hover { background-color: var(--aps-blue-hover); }
+        .text-blue-600 { color: var(--aps-blue); }
+        .border-blue-500 { border-color: var(--aps-blue); }
+        .focus\:ring-blue-500:focus { --tw-ring-color: var(--aps-blue); }
+        .bg-blue-50 { background-color: #eff6ff; } /* mantener un azul claro para fondos */
+
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-    <div id="login-screen" class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
-            <div class="decorative-circle"></div> 
-            
-            <div class="login-card-content">
-                <div class="text-left mb-6">
-                    <img src="https://apsars.do/wp-content/uploads/2023/07/logo-ARS-Web-1-1.png" alt="APS Salud Logo" class="h-10 mb-4">
+    <div id="app-container">
+
+        <div id="carnet-login-screen" class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+            <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+                <div class="decorative-circle"></div> 
+                
+                <div class="login-card-content">
+                    <div class="text-left mb-6">
+                        <img src="https://apsars.do/wp-content/uploads/2023/07/logo-ARS-Web-1-1.png" alt="APS Salud Logo" class="h-10 mb-4">
+                        
+                        <h2 class="text-2xl font-bold text-aps-blue">Descarga tu Carnet Digital</h2>
+                        
+                        <p class="mt-2 text-base text-gray-600">Ingresa los siguientes datos.</p>
+                    </div>
                     
-                    <h2 class="text-2xl font-bold text-aps-blue">Descarga tu Carnet Digital</h2>
-                    
-                    <p class="mt-2 text-base text-gray-600">Ingresa los siguientes datos.</p>
+                    <form id="login-form-carnet" class="space-y-6">
+                        
+                        <div>
+                            <label for="cedula-carnet" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
+                            <input id="cedula-carnet" name="cedula" type="text" required
+                                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
+                                placeholder="001-0000000-0">
+                        </div>
+
+                        <div>
+                            <label for="poliza-carnet" class="block text-sm font-medium text-gray-700">Código de Póliza</label>
+                            <input id="poliza-carnet" name="poliza" type="text" required
+                                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
+                                placeholder="123456-01">
+                        </div>
+                        
+                        <div>
+                            <label for="fecha-nacimiento-carnet" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (DD/MM/AAAA)</label>
+                            <input id="fecha-nacimiento-carnet" name="fecha-nacimiento" type="text" required
+                                class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
+                                placeholder="Ej: 15/05/1985">
+                        </div>
+                        
+                        <div id="carnet-error-message" class="hidden text-sm text-red-600 text-center font-medium">
+                            Datos incorrectos. Por favor, verifique su Cédula, Póliza y Fecha de Nacimiento.
+                        </div>
+
+                        <div>
+                            <button type="submit"
+                                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-aps-blue hover:bg-aps-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue transition-colors">
+                                Validar y Descargar Carnet
+                            </button>
+                        </div>
+                    </form>
+                </div> 
+            </div>
+        </div>
+
+        <div id="carnet-confirmation-screen" class="hidden min-h-screen flex items-center justify-center bg-gray-50 p-4">
+            <div class="max-w-xl w-full bg-white rounded-xl shadow-lg p-8 text-center">
+                
+                <h2 class="text-2xl font-bold text-green-600 mb-2 flex items-center justify-center">
+                    <svg class="w-7 h-7 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    El registro de afiliación ha sido encontrado.
+                </h2>
+                <p class="text-gray-700 mb-6">Procede a descargar tu carnet digital.</p>
+                
+                <div class="bg-blue-50 p-4 rounded-lg mb-6 text-sm text-gray-800 text-left space-y-2">
+                    <ul>
+                        <li><span class="font-semibold">Afiliado:</span> <span id="portal-display-nombre"></span></li>
+                        <li><span class="font-semibold">Cédula:</span> <span id="portal-display-cedula"></span></li>
+                        <li><span class="font-semibold">NSS:</span> <span id="portal-display-nss"></span></li> 
+                        <li><span class="font-semibold">Póliza:</span> <span id="portal-display-poliza"></span></li>
+                        <li><span class="font-semibold">Fecha de Nacimiento:</span> <span id="portal-display-fecha-nac"></span></li> 
+                    </ul>
+                </div>
+
+                <button id="download-carnet-pdf-btn" class="w-full py-3 px-4 rounded-lg text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-colors flex items-center justify-center">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                    Descargar Carnet PDF
+                </button>
+                <div id="pdf-loading-message-carnet" class="hidden mt-2 text-center text-aps-blue">
+                    Generando PDF...
                 </div>
                 
-                <form id="login-form" class="space-y-6">
-                    
+                <button id="back-to-login-carnet" class="mt-4 text-sm text-gray-500 hover:text-aps-blue">
+                    Volver al inicio
+                </button>
+            </div>
+        </div>
+
+        <div id="login-screen" class="hidden min-h-screen flex items-center justify-center bg-gray-50 p-4">
+            <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold text-aps-blue">APS Salud</h1>
+                    <p class="mt-2 text-lg text-gray-600">Portal de Afiliados</p>
+                </div>
+                
+                <form id="login-form" class="mt-8 space-y-6">
                     <div>
                         <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
                         <input id="cedula" name="cedula" type="text" required
-                            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                            placeholder="001-0000000-0">
+                               class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-aps-blue focus:border-aps-blue"
+                               placeholder="001-0000000-0" value="001-1234567-8">
                     </div>
 
                     <div>
-                        <label for="poliza" class="block text-sm font-medium text-gray-700">Código de Póliza</label>
-                        <input id="poliza" name="poliza" type="text" required
-                            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                            placeholder="123456-01">
+                        <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                        <input id="password" name="password" type="password" required
+                               class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-aps-blue focus:border-aps-blue"
+                               placeholder="********" value="12345">
                     </div>
-                    
-                    <div>
-                        <label for="fecha-nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (DD/MM/AAAA)</label>
-                        <input id="fecha-nacimiento" name="fecha-nacimiento" type="text" required
-                            class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                            placeholder="Ej: 15/05/1985">
-                    </div>
-                    
-                    <div id="login-error-message" class="hidden text-sm text-red-600 text-center font-medium">
-                        Datos incorrectos. Por favor, verifique su Cédula, Póliza y Fecha de Nacimiento.
+
+                    <div class="flex items-center justify-end">
+                        <div class="text-sm">
+                            <a href="#" id="forgot-password-link" class="font-medium text-aps-blue hover:text-aps-blue-hover">
+                                ¿Olvidó su contraseña o es su primera vez?
+                            </a>
+                        </div>
                     </div>
 
                     <div>
                         <button type="submit"
                                 class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-aps-blue hover:bg-aps-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue transition-colors">
-                            Validar y Descargar Carnet
+                            Ingresar
                         </button>
                     </div>
                 </form>
-            </div> 
-        </div>
-    </div>
-    
-    <div id="carnet-screen" class="hidden min-h-screen flex items-center justify-center bg-gray-50 p-4">
-        <div class="max-w-xl w-full bg-white rounded-xl shadow-lg p-8 text-center">
-            
-            <h2 class="text-2xl font-bold text-green-600 mb-2 flex items-center justify-center">
-                <svg class="w-7 h-7 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                Su registro de afiliación ha sido encontrado.
-            </h2>
-            <p class="text-gray-700 mb-6">Proceda a descargar su carnet digital.</p>
-            
-            <div class="bg-blue-50 p-4 rounded-lg mb-6 text-sm text-gray-800 text-left space-y-2">
-                <ul>
-                    <li><span class="font-semibold">Afiliado:</span> <span id="portal-display-nombre"></span></li>
-                    <li><span class="font-semibold">Cédula:</span> <span id="portal-display-cedula"></span></li>
-                    <li><span class="font-semibold">NSS:</span> <span id="portal-display-nss"></span></li> 
-                    <li><span class="font-semibold">Póliza:</span> <span id="portal-display-poliza"></span></li>
-                    <li><span class="font-semibold">Fecha de Nacimiento:</span> <span id="portal-display-fecha-nac"></span></li> 
-                </ul>
             </div>
-
-            <button id="download-carnet-pdf" class="w-full py-3 px-4 rounded-lg text-base font-medium text-white bg-green-600 hover:bg-green-700 transition-colors flex items-center justify-center">
-                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                Descargar Carnet PDF
-            </button>
-            <div id="pdf-loading-message" class="hidden mt-2 text-center text-aps-blue">
-                Generando PDF...
-            </div>
-            
-            <button id="back-to-login" class="mt-4 text-sm text-gray-500 hover:text-aps-blue">
-                Volver al inicio
-            </button>
         </div>
-    </div>
 
 
-    <script>
+        <div id="dashboard-screen" class="hidden">
+            <div class="flex">
+                <div id="sidebar-overlay" class="fixed inset-0 bg-black opacity-0 md:hidden z-30 pointer-events-none transition-opacity duration-300"></div>
+
+                <button id="menu-button" class="md:hidden fixed top-4 left-4 z-40 p-2 bg-aps-blue text-white rounded-lg shadow-lg">
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                </button>
+
+                <nav id="sidebar" class="w-64 bg-gray-800 text-white p-4 fixed h-full z-40 transition-transform duration-300 mobile-menu-closed md:relative md:translate-x-0 flex flex-col">
+                    <div class="flex items-center space-x-3 mb-8">
+                        <svg class="h-8 w-8 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                        </svg>
+                        <span class="text-2xl font-bold">APS Salud</span>
+                    </div>
+
+                    <p class="text-sm text-gray-400 mb-2">Bienvenido,</p>
+                    <h3 class="text-lg font-semibold mb-6 truncate" id="affiliate-name">Juan José de la Cruz</h3>
+                    
+                    <ul class="space-y-2 flex-1">
+                        <li>
+                            <a href="#" class="nav-link active" data-target="datos-personales">
+                                <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                                Datos Personales
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link" data-target="datos-afiliacion">
+                                <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-9.75A1.125 1.125 0 013 20.625v-9.75c0-.621.504-1.125 1.125-1.125H6.75m12 0c0-.621-.504-1.125-1.125-1.125H9.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125v-1.5z" /></svg>
+                                Datos de Afiliación
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link" data-target="nucleo-familiar">
+                                <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 00-12.728 0M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 01-1.591.659h-1.844a2.25 2.25 0 01-1.591-.659L4.18 13.87a2.25 2.25 0 01-.659-1.591V6.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" /></svg>
+                                Núcleo Familiar
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link" data-target="certificaciones-carnet">
+                                <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                                Certificaciones y Carnet
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <a href="#" id="logout-button" class="nav-link !text-red-400 hover:!bg-red-800 hover:!text-white">
+                            <svg class="w-5 h-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+                            Cerrar Sesión
+                        </a>
+                    </div>
+                </nav>
+
+                <main class="flex-1 p-4 md:p-10 md:ml-64">
+                    
+                    <section id="datos-personales" class="content-section active">
+                        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6">Datos del Afiliado</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Primer Nombre</label>
+                                    <div class="readonly-field">Juan</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Segundo Nombre</label>
+                                    <div class="readonly-field">José</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Primer Apellido</label>
+                                    <div class="readonly-field">De la Cruz</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Segundo Apellido</label>
+                                    <div class="readonly-field">Pérez</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Cédula o NUI</label>
+                                    <div class="readonly-field">001-1234567-8</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Código Póliza</label>
+                                    <div class="readonly-field">987654-01</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">NSS</label>
+                                    <div class="readonly-field">123456789</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Fecha de Nacimiento</label>
+                                    <div class="readonly-field">15/05/1985</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Nacionalidad</label>
+                                    <div class="readonly-field">Dominicana</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Género</label>
+                                    <div class="readonly-field">Masculino</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Tipo Sangre</label>
+                                    <div class="readonly-field">O+</div>
+                                </div>
+                                <div>
+                                    <label for="estado-civil" class="block text-sm font-medium text-gray-700">Estado Civil (Modificable)</label>
+                                    <select id="estado-civil" name="estado-civil" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-aps-blue focus:border-aps-blue text-sm">
+                                        <option>Soltero(a)</option>
+                                        <option selected>Casado(a)</option>
+                                        <option>Divorciado(a)</option>
+                                        <option>Unión Libre</option>
+                                        <option>Viudo(a)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mt-8 text-right">
+                                <button id="save-affiliate-button" class="py-2 px-6 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                                    Guardar Datos del Afiliado
+                                </button>
+                                <span id="save-affiliate-msg" class="text-green-600 ml-4" style="display: none;">¡Datos del Afiliado actualizados!</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6">Datos de Contacto</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                                <div>
+                                    <label for="celular" class="block text-sm font-medium text-gray-700">Celular (Modificable)</label>
+                                    <input type="tel" id="celular" name="celular" value="809-555-1234" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-aps-blue focus:border-aps-blue text-sm">
+                                </div>
+                                <div>
+                                    <label for="correo" class="block text-sm font-medium text-gray-700">Correo (Modificable)</label>
+                                    <input type="email" id="correo" name="correo" value="juan.delacruz@correo.com" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-aps-blue focus:border-aps-blue text-sm">
+                                </div>
+                                <div class="col-span-1">
+                                    <label for="ciudad" class="block text-sm font-medium text-gray-700">Ciudad (Modificable)</label>
+                                    <input type="text" id="ciudad" name="ciudad" value="Santo Domingo" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-aps-blue focus:border-aps-blue text-sm">
+                                </div>
+                                <div>
+                                    <label for="provincia" class="block text-sm font-medium text-gray-700">Provincia (Modificable)</label>
+                                    <input type="text" id="provincia" name="provincia" value="Distrito Nacional" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-aps-blue focus:border-aps-blue text-sm">
+                                </div>
+                                <div>
+                                    <label for="region" class="block text-sm font-medium text-gray-700">Región (Modificable)</label>
+                                    <input type="text" id="region" name="region" value="Ozama" class="mt-1 block w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-aps-blue focus:border-aps-blue text-sm">
+                                </div>
+                            </div>
+                            <div class="mt-8 text-right">
+                                <button id="save-contact-button" class="py-2 px-6 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-aps-blue hover:bg-aps-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue transition-colors">
+                                    Guardar Datos de Contacto
+                                </button>
+                                <span id="save-contact-msg" class="text-green-600 ml-4" style="display: none;">¡Datos de contacto actualizados!</span>
+                            </div>
+                        </div>
+                    </section>
+                    
+                    <section id="datos-afiliacion" class="content-section">
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6">Datos de Afiliación</h2>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Empleador o Empresa de Trabajo</label>
+                                    <div class="readonly-field">Empresa Dominicana S.R.L.</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">RNC Empresa de Trabajo</label>
+                                    <div class="readonly-field">1-01-12345-6</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Sede principal de Empresa de Trabajo</label>
+                                    <div class="readonly-field">Santo Domingo, D.N.</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Tipo de Afiliación</label>
+                                    <div class="readonly-field">Titular</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Fecha de Afiliación (Inicio de Contrato)</label>
+                                    <div class="readonly-field">01/01/2010</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Último Periodo de Cobertura</label>
+                                    <div class="readonly-field">Octubre 2025</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Estado de Afiliación</label>
+                                    <div class="readonly-field text-green-600 font-semibold">Activo</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Plan de Salud</label>
+                                    <div class="readonly-field">Plan Básico Plus</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Estudiante</label>
+                                    <div class="readonly-field">No</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-500">Discapacitado(a)</label>
+                                    <div class="readonly-field">No</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="nucleo-familiar" class="content-section">
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-6">Núcleo Familiar</h2>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Completo</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cédula / NUI</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cód. Póliza</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NSS</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Parentesco</th>
+                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">María Elena Gómez</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">001-9876543-2</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">987654-02</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">987654321</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Esposa</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Carlos José de la Cruz</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">N/A (Menor)</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">987654-03</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">123450987</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Hijo</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Activo</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Ana María Pérez (Madre)</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">001-0012345-0</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">987654-04</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">456789012</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Dependiente (Padre)</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactivo</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="certificaciones-carnet" class="content-section">
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-8">Certificaciones y Carnet</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                
+                                <a href="#" class="group block p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-blue-50 hover:shadow-md transition-all">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 bg-blue-100 rounded-full p-3">
+                                            <svg class="w-6 h-6 text-aps-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-aps-blue">Estado de Afiliación</h3>
+                                            <p class="text-sm text-gray-500">Descargar certificación</p>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <a href="#" class="group block p-6 bg-gray-50 rounded-lg border border-gray-200 hover:bg-blue-50 hover:shadow-md transition-all">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 bg-blue-100 rounded-full p-3">
+                                            <svg class="w-6 h-6 text-aps-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m-1.5 0v-1.5a2.25 2.25 0 012.25-2.25h3.75a2.25 2.25 0 012.25 2.25v1.5m-6 13.5h6.75a2.25 2.25 0 002.25-2.25V9a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h3 class="text-lg font-semibold text-gray-900 group-hover:text-aps-blue">Aportes Recibidos y/o Notificación de Coberturas</h3>
+                                            <p class="text-sm text-gray-500">Ver historial de aportes</p>
+                                        </div>
+                                    </div>
+                                </a>
+
+                                <a href="#" id="show-carnet-button" class="group block p-6 bg-aps-blue text-white rounded-lg border border-blue-700 hover:bg-aps-blue-hover hover:shadow-xl transition-all">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 bg-blue-700 rounded-full p-3">
+                                            <svg class="w-6 h-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h6m-6 2.25h6M12 9v10.5m3.75-10.5H21a.75.75 0 01.75.75v10.5a.75.75 0 01-.75.75h-5.25a.75.75 0 01-.75-.75V9.75a.75.75 0 01.75-.75z" /></svg>
+                                        </div>
+                                        <div class="ml-4">
+                                            <h3 class="text-lg font-semibold text-white">Carnet APS</h3>
+                                            <p class="text-sm text-blue-200">Ver carnet digital</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+        </div>
+
+
+        <div id="forgot-password-modal" class="modal fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-50 p-4">
+            <div class="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full relative">
+                <button class="close-modal absolute top-4 right-4 text-gray-400 hover:text-gray-700" data-target="forgot-password-modal">
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Recuperar Contraseña</h2>
+                <p class="text-gray-600 mb-6">Seleccione dónde desea recibir el enlace para restablecer su contraseña (recibirá una contraseña temporal).</p>
+                
+                <div id="recovery-options">
+                    <div classs="space-y-4">
+                        <fieldset>
+                            <legend class="sr-only">Método de recuperación</legend>
+                            <div class="space-y-4">
+                                <label for="send-email" class="flex items-center p-4 border rounded-lg has-[:checked]:bg-blue-50 has-[:checked]:border-aps-blue cursor-pointer transition-all">
+                                    <input id="send-email" name="recovery-method" type="radio" checked class="h-4 w-4 text-aps-blue border-gray-300 focus:ring-aps-blue">
+                                    <span class="ml-3 block text-sm font-medium text-gray-700">
+                                        Enviar a mi correo <span class="font-normal text-gray-500">(ju***@correo.com)</span>
+                                    </span>
+                                </label>
+                                <label for="send-sms" class="flex items-center p-4 border rounded-lg has-[:checked]:bg-blue-50 has-[:checked]:border-aps-blue cursor-pointer transition-all">
+                                    <input id="send-sms" name="recovery-method" type="radio" class="h-4 w-4 text-aps-blue border-gray-300 focus:ring-aps-blue">
+                                    <span class="ml-3 block text-sm font-medium text-gray-700">
+                                        Enviar a mi celular <span class="font-normal text-gray-500">(809-***-1234)</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <button id="send-recovery-link-button" class="mt-8 w-full py-3 px-4 rounded-lg text-base font-medium text-white bg-aps-blue hover:bg-aps-blue-hover transition-colors">
+                        Enviar Enlace
+                    </button>
+                </div>
+                
+                <div id="recovery-message" class="hidden text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                    <h3 class="text-lg font-medium text-green-800">¡Enlace Enviado!</h3>
+                    <p class="mt-2 text-sm text-green-700">Se ha enviado un enlace con una contraseña temporal. Por favor revise su correo o mensajes SMS para completar el proceso e ingresar.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="carnet-modal" class="modal fixed inset-0 z-50 items-center justify-center bg-black bg-opacity-50 p-4">
+            <div class="bg-white rounded-xl shadow-lg p-6 max-w-md w-full relative">
+                <button class="close-modal absolute top-4 right-4 text-gray-400 hover:text-gray-700" data-target="carnet-modal">
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+                
+                <h2 class="text-xl font-bold text-gray-800 mb-4 text-center">Carnet Digital APS (Vista previa)</h2>
+                
+                <div id="carnet-card" class="bg-gradient-to-br from-aps-blue to-blue-800 text-white rounded-xl shadow-2xl p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-2xl font-bold">APS Salud</span>
+                        <svg class="h-8 w-8 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h6m-6 2.25h6M12 9v10.5m3.75-10.5H21a.75.75 0 01.75.75v10.5a.75.75 0 01-.75.75h-5.25a.75.75 0 01-.75-.75V9.75a.75.75 0 01.75-.75z" /></svg>
+                        </svg>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="text-xs uppercase opacity-70">Nombre del Afiliado</div>
+                        <div class="text-xl font-semibold">Juan José de la Cruz Pérez</div>
+                    </div>
+                    
+                    <div class="flex space-x-6">
+                        <div>
+                            <div class="text-xs uppercase opacity-70">Cédula / NUI</div>
+                            <div class="text-lg font-medium">001-1234567-8</div>
+                        </div>
+                        <div>
+                            <div class="text-xs uppercase opacity-70">Código Póliza</div>
+                            <div class="text-lg font-medium">987654-01</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="text-xs uppercase opacity-70">Plan de Salud</div>
+                        <div class="text-lg font-medium">Plan Básico Plus</div>
+                    </div>
+                    
+                    <div class="mt-4 border-t border-blue-500 pt-4 flex justify-between items-center">
+                        <div>
+                            <div class="text-xs uppercase opacity-70">Estado</div>
+                            <div class="text-xl font-bold text-green-300">ACTIVO</div>
+                        </div>
+                        <svg class="h-12 w-12 bg-white p-1 rounded" viewBox="0 0 100 100">
+                            <rect width="100" height="100" fill="#000000"/>
+                            <path fill="#ffffff" d="M10 10h20v20H10zM70 10h20v20H70zM10 70h20v20H10zM50 50h10v10H50zM40 40h10v10H40zM60 60h10v10H60zM20 20h10v10H20zM80 20h10v10H80zM20 80h10v10H20zM70 70h10v10H70zM10 40h10v10H10zM80 40h10v10H80z"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <p class="text-center text-xs text-gray-500 mt-4">Este carnet digital es válido para servicios a nivel nacional.</p>
+                
+                <p class="text-center text-sm text-red-600 font-semibold mt-4">La función de descarga de PDF para el portal ha sido deshabilitada para usar el flujo de impresión optimizado por coordenadas.</p>
+            </div>
+        </div>
+
+
+    </div> <script>
         const { jsPDF } = window.jspdf;
 
         document.addEventListener('DOMContentLoaded', function () {
-            // --- Elementos de pantalla ---
-            const loginScreen = document.getElementById('login-screen');
-            const carnetScreen = document.getElementById('carnet-screen');
-            const loginForm = document.getElementById('login-form');
-            const loginErrorMessage = document.getElementById('login-error-message');
-            const downloadCarnetPdfButton = document.getElementById('download-carnet-pdf');
-            const backToLoginButton = document.getElementById('back-to-login');
-            const pdfLoadingMessage = document.getElementById('pdf-loading-message');
+            // --- ELEMENTOS DE PANTALLA CARNET (Login especial) ---
+            const carnetLoginScreen = document.getElementById('carnet-login-screen');
+            const carnetConfirmationScreen = document.getElementById('carnet-confirmation-screen');
+            const loginFormCarnet = document.getElementById('login-form-carnet');
+            const carnetErrorMessage = document.getElementById('carnet-error-message');
+            const downloadCarnetPdfBtn = document.getElementById('download-carnet-pdf-btn');
+            const backToLoginCarnet = document.getElementById('back-to-login-carnet');
+            const pdfLoadingMessageCarnet = document.getElementById('pdf-loading-message-carnet');
             
             let validatedAffiliateData = null;
             let affiliateData = [];
@@ -167,7 +631,6 @@
             const CARNET_IMAGE_PATH = 'carnet.png';
             
             // COORDENADAS: (X, Y) en píxeles de la imagen carnet.png (1280x853px)
-            // AJUSTADO: Coordenadas actualizadas según su solicitud.
             const COORDINATES = {
                 Nombre: [35, 408],
                 Cedula: [900, 114],
@@ -189,8 +652,7 @@
             // --- Lógica de Carga de Datos (CSV) ---
             async function loadAffiliateData() {
                 try {
-                    // SIMULACIÓN DE DATOS (Recuerde que debe tener un archivo llamado 'afiliados.csv' en la misma carpeta)
-                    // Esta simulación es solo para fines de ejemplo si el CSV no está disponible.
+                    // DATOS SIMULADOS A PARTIR DE LA IMAGEN afiliados.csv
                     affiliateData = [
                         {
                             Nombre: "CRISTIAN AGUSTIN ULLOA MARTINEZ",
@@ -200,22 +662,22 @@
                             FechaNacimiento: "13/06/1974"
                         }
                     ];
+                    // Si tienes un archivo 'afiliados.csv' en el servidor, esta es la función donde lo cargarías.
                     
                 } catch (error) {
                     console.error("Error al cargar o procesar el CSV:", error);
-                    alert("Error al cargar la base de datos de afiliados. Asegúrese de que 'afiliados.csv' existe.");
                 }
             }
             loadAffiliateData();
 
 
-            // --- Lógica de Login/Validación ---
-            loginForm.addEventListener('submit', function (e) {
+            // --- Lógica de Login/Validación de Carnet ---
+            loginFormCarnet.addEventListener('submit', function (e) {
                 e.preventDefault();
                 
-                const inputCedula = document.getElementById('cedula').value.trim();
-                const inputPoliza = document.getElementById('poliza').value.trim();
-                const inputFechaNacimiento = document.getElementById('fecha-nacimiento').value.trim();
+                const inputCedula = document.getElementById('cedula-carnet').value.trim();
+                const inputPoliza = document.getElementById('poliza-carnet').value.trim();
+                const inputFechaNacimiento = document.getElementById('fecha-nacimiento-carnet').value.trim();
                 
                 // Búsqueda del afiliado (comparación estricta)
                 const foundAffiliate = affiliateData.find(affiliate => 
@@ -226,7 +688,7 @@
 
                 if (foundAffiliate) {
                     validatedAffiliateData = foundAffiliate;
-                    loginErrorMessage.classList.add('hidden');
+                    carnetErrorMessage.classList.add('hidden');
                     
                     // Llenar datos en la pantalla de confirmación
                     document.getElementById('portal-display-nombre').textContent = foundAffiliate.Nombre;
@@ -236,27 +698,27 @@
                     document.getElementById('portal-display-fecha-nac').textContent = foundAffiliate.FechaNacimiento;
                     
                     // Mostrar pantalla de confirmación y ocultar el login
-                    loginScreen.style.display = 'none';
-                    carnetScreen.style.display = 'flex';
+                    carnetLoginScreen.style.display = 'none';
+                    carnetConfirmationScreen.style.display = 'flex';
                     
                 } else {
                     validatedAffiliateData = null;
-                    loginErrorMessage.classList.remove('hidden');
+                    carnetErrorMessage.classList.remove('hidden');
                 }
             });
 
-            // --- Lógica de Generación de PDF ---
-            downloadCarnetPdfButton.addEventListener('click', function () {
+            // --- Lógica de Generación de PDF (Coordenadas) ---
+            downloadCarnetPdfBtn.addEventListener('click', function () {
                 if (!validatedAffiliateData) {
                     alert("Error: No hay datos de afiliado validados.");
                     return;
                 }
 
                 // Deshabilitar botón y mostrar mensaje de carga
-                downloadCarnetPdfButton.disabled = true;
-                downloadCarnetPdfButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-                downloadCarnetPdfButton.classList.add('bg-gray-400');
-                pdfLoadingMessage.classList.remove('hidden');
+                downloadCarnetPdfBtn.disabled = true;
+                downloadCarnetPdfBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                downloadCarnetPdfBtn.classList.add('bg-gray-400');
+                pdfLoadingMessageCarnet.classList.remove('hidden');
 
                 const img = new Image();
                 img.crossOrigin = 'Anonymous'; 
@@ -283,9 +745,9 @@
                         // 2. Definir estilos de texto (Color #036498 y Negrita)
                         pdf.setFont('helvetica', 'bold'); 
                         pdf.setFontSize(TEXT_SIZE);
-                        pdf.setTextColor(3, 100, 152); 
+                        pdf.setTextColor(3, 100, 152); // RGB de #036498
 
-                        // 3. Escribir los datos en las nuevas coordenadas
+                        // 3. Escribir los datos en las coordenadas
                         const data = validatedAffiliateData;
 
                         // Nombre (35, 408)
@@ -307,37 +769,178 @@
                         pdf.save(`Carnet_APS_${data.Cedula}.pdf`);
 
                         // 5. Restaurar botón
-                        restoreDownloadButton();
+                        restoreDownloadButtonCarnet();
 
                     } catch (error) {
                         console.error("Error al generar el PDF:", error);
                         alert("Ocurrió un error al generar el PDF.");
-                        restoreDownloadButton();
+                        restoreDownloadButtonCarnet();
                     }
                 };
 
                 img.onerror = function() {
                     console.error("Error al cargar la imagen del carnet. Asegúrese de que 'carnet.png' existe en la raíz.");
                     alert("No se pudo cargar la imagen de fondo del carnet (carnet.png).");
-                    restoreDownloadButton();
+                    restoreDownloadButtonCarnet();
                 };
             });
             
-            function restoreDownloadButton() {
-                downloadCarnetPdfButton.disabled = false;
-                downloadCarnetPdfButton.classList.remove('bg-gray-400');
-                downloadCarnetPdfButton.classList.add('bg-green-600', 'hover:bg-green-700');
-                pdfLoadingMessage.classList.add('hidden');
+            function restoreDownloadButtonCarnet() {
+                downloadCarnetPdfBtn.disabled = false;
+                downloadCarnetPdfBtn.classList.remove('bg-gray-400');
+                downloadCarnetPdfBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                pdfLoadingMessageCarnet.classList.add('hidden');
             }
             
-            // --- Lógica de Volver al Login ---
-            backToLoginButton.addEventListener('click', function() {
-                carnetScreen.style.display = 'none';
-                loginScreen.style.display = 'flex';
+            // --- Lógica de Volver al Login de Carnet ---
+            backToLoginCarnet.addEventListener('click', function() {
+                carnetConfirmationScreen.style.display = 'none';
+                carnetLoginScreen.style.display = 'flex';
                 validatedAffiliateData = null; 
-                loginForm.reset();
-                loginErrorMessage.classList.add('hidden');
+                loginFormCarnet.reset();
+                carnetErrorMessage.classList.add('hidden');
             });
+
+
+
+            // --- LÓGICA DEL PORTAL (Original) ---
+            const loginScreen = document.getElementById('login-screen');
+            const dashboardScreen = document.getElementById('dashboard-screen');
+            const loginForm = document.getElementById('login-form');
+            const logoutButton = document.getElementById('logout-button');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentSections = document.querySelectorAll('.content-section');
+            const sidebar = document.getElementById('sidebar');
+            const menuButton = document.getElementById('menu-button');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const forgotPasswordLink = document.getElementById('forgot-password-link');
+            const carnetModal = document.getElementById('carnet-modal');
+            const showCarnetButton = document.getElementById('show-carnet-button');
+            const modals = document.querySelectorAll('.modal');
+            const closeModalButtons = document.querySelectorAll('.close-modal');
+            const sendRecoveryLinkButton = document.getElementById('send-recovery-link-button');
+            const recoveryOptions = document.getElementById('recovery-options');
+            const recoveryMessage = document.getElementById('recovery-message');
+            const saveAffiliateButton = document.getElementById('save-affiliate-button');
+            const saveAffiliateMsg = document.getElementById('save-affiliate-msg');
+            const saveContactButton = document.getElementById('save-contact-button');
+            const saveContactMsg = document.getElementById('save-contact-msg');
+
+            // --- LÓGICA DE NAVEGACIÓN Y RESPONSIVE DEL PORTAL (Original) ---
+            function showSection(targetId) {
+                contentSections.forEach(section => { section.classList.remove('active'); });
+                navLinks.forEach(link => { link.classList.remove('active'); });
+                const targetSection = document.getElementById(targetId);
+                const targetLink = document.querySelector(`.nav-link[data-target="${targetId}"]`);
+                if (targetSection) { targetSection.classList.add('active'); }
+                if (targetLink) { targetLink.classList.add('active'); }
+                if (window.innerWidth < 768) { toggleMobileMenu(false); }
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    showSection(this.dataset.target);
+                });
+            });
+
+            function toggleMobileMenu(open) {
+                if (open === true) {
+                    sidebar.classList.remove('mobile-menu-closed');
+                    sidebar.classList.add('mobile-menu-open');
+                    sidebarOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                    sidebarOverlay.classList.add('opacity-50');
+                } else if (open === false) {
+                    sidebar.classList.remove('mobile-menu-open');
+                    sidebar.classList.add('mobile-menu-closed');
+                    sidebarOverlay.classList.remove('opacity-50');
+                    sidebarOverlay.classList.add('opacity-0', 'pointer-events-none');
+                } else {
+                    sidebar.classList.toggle('mobile-menu-closed');
+                    sidebar.classList.toggle('mobile-menu-open');
+                    sidebarOverlay.classList.toggle('opacity-0');
+                    sidebarOverlay.classList.toggle('opacity-50');
+                    sidebarOverlay.classList.toggle('pointer-events-none');
+                }
+            }
+            
+            menuButton.addEventListener('click', () => toggleMobileMenu());
+            sidebarOverlay.addEventListener('click', () => toggleMobileMenu(false));
+            
+            if (window.innerWidth < 768) {
+                sidebar.classList.add('mobile-menu-closed');
+            }
+
+
+            // --- LÓGICA DE LOGIN Y LOGOUT DEL PORTAL (Original) ---
+            // Nota: Este login del portal está oculto por defecto para mostrar el de Carnet.
+            loginForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                loginScreen.style.display = 'none';
+                dashboardScreen.style.display = 'block';
+                showSection('datos-personales');
+            });
+
+            logoutButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                dashboardScreen.style.display = 'none';
+                carnetLoginScreen.style.display = 'flex'; // Volver al login de carnet principal
+            });
+
+            // --- LÓGICA DE MODALES DEL PORTAL (Original) ---
+            forgotPasswordLink.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.getElementById('forgot-password-modal').classList.add('active');
+                recoveryOptions.classList.remove('hidden');
+                recoveryMessage.classList.add('hidden');
+            });
+
+            showCarnetButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                carnetModal.classList.add('active');
+            });
+
+            closeModalButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    modals.forEach(modal => modal.classList.remove('active'));
+                });
+            });
+
+            sendRecoveryLinkButton.addEventListener('click', function() {
+                recoveryOptions.classList.add('hidden');
+                recoveryMessage.classList.remove('hidden');
+            });
+
+
+            // --- LÓGICA DE GUARDADO DE DATOS DEL PORTAL (Original) ---
+            saveAffiliateButton.addEventListener('click', function () {
+                saveAffiliateMsg.style.display = 'inline';
+                saveAffiliateButton.textContent = 'Guardado';
+                saveAffiliateButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+                saveAffiliateButton.classList.add('bg-gray-400');
+                setTimeout(() => {
+                    saveAffiliateMsg.style.display = 'none';
+                    saveAffiliateButton.textContent = 'Guardar Datos del Afiliado';
+                    saveAffiliateButton.classList.remove('bg-gray-400');
+                    saveAffiliateButton.classList.add('bg-green-600', 'hover:bg-green-700');
+                }, 3000);
+            });
+
+            saveContactButton.addEventListener('click', function () {
+                saveContactMsg.style.display = 'inline';
+                saveContactButton.textContent = 'Guardado';
+                saveContactButton.classList.remove('bg-aps-blue', 'hover:bg-aps-blue-hover');
+                saveContactButton.classList.add('bg-gray-400');
+                setTimeout(() => {
+                    saveContactMsg.style.display = 'none';
+                    saveContactButton.textContent = 'Guardar Datos de Contacto';
+                    saveContactButton.classList.remove('bg-gray-400');
+                    saveContactButton.classList.add('bg-aps-blue', 'hover:bg-aps-blue-hover');
+                }, 3000);
+            });
+            
+            // Se elimina la función download-carnet-pdf original, ya que el nuevo botón de descarga usa el flujo optimizado.
+
         });
     </script>
 </body>
