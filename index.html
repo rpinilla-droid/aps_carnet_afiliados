@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARS APS - Portal de Afiliados</title>
+    <title>APS Salud - Portal de Afiliados</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,6 +12,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
+        /* Definición del color corporativo */
+        :root {
+            --aps-blue: #066aab;
+            --aps-blue-hover: #055e98; /* Un poco más oscuro para el hover */
+        }
         /* Estilo para la fuente Inter */
         body {
             font-family: 'Inter', sans-serif;
@@ -20,14 +25,20 @@
         .content-section {
             display: none;
         }
-        /* Mostrar login por defecto */
-        #login-screen {
-            display: flex; /* Tailwind's flex is applied via JS */
-        }
-        /* Estilo para el botón de navegación activo (del diseño original) */
+        /* Estilo para el botón de navegación activo */
         .nav-link.active {
             background-color: #e5e7eb; /* gray-200 */
-            color: #1d4ed8; /* blue-700 */
+            color: var(--aps-blue); 
+        }
+        /* Aplicación del color corporativo a Tailwind (para elementos clave) */
+        .text-aps-blue { color: var(--aps-blue); }
+        .bg-aps-blue { background-color: var(--aps-blue); }
+        .hover\:bg-aps-blue-hover:hover { background-color: var(--aps-blue-hover); }
+        .focus\:ring-aps-blue:focus { --tw-ring-color: var(--aps-blue); }
+
+        /* Ajustes para el login y el botón */
+        #login-form input:focus {
+            border-color: var(--aps-blue);
         }
     </style>
 </head>
@@ -37,8 +48,8 @@
         <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
             <div class="text-center mb-6">
                 <img src="https://apsars.do/wp-content/uploads/2023/07/logo-ARS-Web-1-1.png" alt="ARS APS Logo" class="h-10 mx-auto mb-4">
-                <h1 class="text-xl font-semibold text-blue-600">ARS APS</h1>
-                <p class="mt-1 text-base text-gray-600">Acceso a Portal de Afiliados</p>
+                <h1 class="text-3xl font-bold text-aps-blue">APS Salud</h1>
+                <p class="mt-2 text-lg text-gray-600">Accede a tu portal de Afiliado</p>
             </div>
             
             <form id="login-form" class="space-y-6">
@@ -46,21 +57,21 @@
                 <div>
                     <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
                     <input id="cedula" name="cedula" type="text" required
-                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
                            placeholder="001-0000000-0">
                 </div>
 
                 <div>
                     <label for="poliza" class="block text-sm font-medium text-gray-700">Código de Póliza</label>
                     <input id="poliza" name="poliza" type="text" required
-                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
                            placeholder="123456-01">
                 </div>
                 
                 <div>
                     <label for="fecha-nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (DD/MM/AAAA)</label>
                     <input id="fecha-nacimiento" name="fecha-nacimiento" type="text" required
-                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                           class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
                            placeholder="Ej: 15/05/1985">
                 </div>
                 
@@ -70,7 +81,7 @@
 
                 <div>
                     <button type="submit"
-                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-aps-blue hover:bg-aps-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue transition-colors">
                         Acceder al Portal
                     </button>
                 </div>
@@ -95,7 +106,7 @@
                     Mi Carnet Digital
                 </a>
                 <a href="#" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100" data-target="dependientes">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                     Dependientes
                 </a>
                 <a href="#" class="nav-link flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100" data-target="pagos">
@@ -115,7 +126,7 @@
                 <h2 id="current-title" class="text-xl font-semibold text-gray-900">Dashboard</h2>
                 <div class="flex items-center">
                     <span id="welcome-name" class="text-gray-700 text-sm font-medium mr-3"></span>
-                    <button class="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <button class="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue">
                         <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </button>
                 </div>
@@ -136,7 +147,7 @@
                         </div>
                         <div class="bg-white p-6 rounded-xl shadow-md">
                             <h4 class="text-lg font-medium text-gray-600">Monto Cubierto</h4>
-                            <p class="mt-2 text-3xl font-bold text-blue-600">RD$ 5,000,000</p>
+                            <p class="mt-2 text-3xl font-bold text-aps-blue">RD$ 5,000,000</p>
                         </div>
                     </div>
                 </div>
@@ -161,7 +172,7 @@
                             <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                             Descargar Carnet PDF
                         </button>
-                        <div id="pdf-loading-message" class="hidden mt-2 text-sm text-blue-600">
+                        <div id="pdf-loading-message" class="hidden mt-2 text-sm text-aps-blue">
                             Generando PDF, por favor espere...
                         </div>
                     </div>
@@ -218,7 +229,7 @@
                 FechaNacimiento: [687, 649]
             };
             
-            // Dimensiones estándar del carnet (ID-1) en landscape
+            // Dimensiones estándar del carnet (ID-1) en landscape: 85.6mm x 53.98mm
             const PDF_WIDTH_MM = 85.6; 
             const PDF_HEIGHT_MM = 53.98;
             const TEXT_SIZE = 7; 
@@ -265,7 +276,7 @@
                 const inputPoliza = document.getElementById('poliza').value.trim();
                 const inputFechaNacimiento = document.getElementById('fecha-nacimiento').value.trim();
                 
-                // Búsqueda del afiliado
+                // Búsqueda del afiliado (comparación estricta)
                 const foundAffiliate = affiliateData.find(affiliate => 
                     affiliate.Cedula === inputCedula && 
                     affiliate.Poliza === inputPoliza && 
@@ -277,7 +288,8 @@
                     loginErrorMessage.classList.add('hidden');
                     
                     // Llenar datos en el portal
-                    welcomeName.textContent = `Bienvenido(a), ${foundAffiliate.Nombre.split(' ')[0]}`; // Solo el primer nombre
+                    const firstName = foundAffiliate.Nombre.split(' ')[0];
+                    welcomeName.textContent = `Bienvenido(a), ${firstName}`;
                     document.getElementById('portal-display-nombre').textContent = foundAffiliate.Nombre;
                     document.getElementById('portal-display-cedula').textContent = foundAffiliate.Cedula;
                     document.getElementById('portal-display-poliza').textContent = foundAffiliate.Poliza;
@@ -330,7 +342,7 @@
             });
 
 
-            // --- Lógica de Generación de PDF (La más importante) ---
+            // --- Lógica de Generación de PDF ---
             downloadCarnetPdfButton.addEventListener('click', function () {
                 if (!validatedAffiliateData) {
                     alert("Error: No hay datos de afiliado validados.");
