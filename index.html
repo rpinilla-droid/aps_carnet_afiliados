@@ -179,17 +179,25 @@
         const { jsPDF } = window.jspdf; 
         
         // --------------------------------------------------------------------------
-        // !!! DEBE REEMPLAZAR ESTAS URLS !!!
+        // !!! DEBE REEMPLAZAR ESTAS URLS CON SUS ENLACES RAW REALES DE GITHUB !!!
         // --------------------------------------------------------------------------
-        const CSV_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/afiliados.csv'; 
-        const CARNET_IMAGE_URL = 'https://raw.githubusercontent.com/rpinilla-droid/aps_carnetpdf_afiliados/main/carnet.png'; 
+        const CSV_URL = 'https://PLACEHOLDER.com/REEMPLACEME_CON_SU_CSV_RAW_URL'; 
+        const CARNET_IMAGE_URL = 'https://PLACEHOLDER.com/REEMPLACEME_CON_SU_CARNET_PNG_RAW_URL'; 
         
-        // Fallback y constantes internas
+        // Fallback (solo se usa si no se reemplazan las URLs)
         const FALLBACK_CSV_CONTENT = `Nombre;Cedula;NSS;Poliza;FechaNacimiento
 CRISTIAN AGUSTIN ULLOA MARTINEZ;001-0219588-0;2434133;00525-00018-04;13/06/1974
 YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
 
-        // Coordenadas proporcionadas por el usuario
+        // --------------------------------------------------------------------------
+        // LÓGICA DE COORDENADAS Y ESCALA SOLICITADA
+        // --------------------------------------------------------------------------
+        
+        // Dimensiones de la plantilla de imagen (asumidas para calcular el escalado)
+        const TEMPLATE_WIDTH_PX = 1280;
+        const TEMPLATE_HEIGHT_PX = 853; 
+
+        // COORDENADAS: (X, Y) en píxeles de la imagen carnet.png
         const COORDINATES = {
             Nombre: [35, 408],
             Cedula: [900, 114],
@@ -197,6 +205,17 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             Poliza: [44, 638],
             FechaNacimiento: [563, 638]
         };
+
+        // Dimensiones estándar del carnet (ID-1)
+        const PDF_WIDTH_MM = 85.6; 
+        const PDF_HEIGHT_MM = 53.98;
+        const TEXT_SIZE = 7; 
+
+        // Función de ayuda para calcular coordenadas en mm
+        const mmX = (px) => px * (PDF_WIDTH_MM / TEMPLATE_WIDTH_PX);
+        const mmY = (px) => px * (PDF_HEIGHT_MM / TEMPLATE_HEIGHT_PX);
+        
+        // --------------------------------------------------------------------------
         
         let affiliateData = [];
         let loggedInAffiliate = null;
@@ -254,7 +273,6 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
         async function loadCarnetImage() {
             try {
                 if (CARNET_IMAGE_URL.includes('PLACEHOLDER')) {
-                    // Si no hay URL, el PDF se generará sin imagen de fondo.
                     console.warn("ADVERTENCIA: URL de la imagen carnet no definida. El PDF no tendrá fondo.");
                     return true;
                 }
@@ -273,7 +291,6 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 return true;
             } catch (error) {
                 console.error("Fallo al cargar la imagen del carnet:", error);
-                // Permite continuar aunque la imagen falle
                 return false; 
             }
         }
@@ -299,43 +316,30 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             downloadButton.disabled = true;
             loadingMessage.classList.remove('hidden');
 
-            // Dimensiones ID-1 (Carnet) en mm: 85.6 x 53.98.
-            const widthInMM = 85.6;
-            const heightInMM = 53.98;
-
             const pdf = new jsPDF({
                 orientation: 'l', // Horizontal
                 unit: 'mm',
-                format: [widthInMM, heightInMM] 
+                format: [PDF_WIDTH_MM, PDF_HEIGHT_MM] // Usa las dimensiones ID-1 solicitadas
             });
             
             // --- 1. IMAGEN DE FONDO (CARNET.PNG) ---
             if (carnetBase64Image) {
                 // Añade la imagen para que ocupe todo el espacio ID-1
-                pdf.addImage(carnetBase64Image, 'PNG', 0, 0, widthInMM, heightInMM); 
+                pdf.addImage(carnetBase64Image, 'PNG', 0, 0, PDF_WIDTH_MM, PDF_HEIGHT_MM); 
             } else {
-                // Fondo blanco si no se pudo cargar la imagen
+                // Fallback visual si no se pudo cargar la imagen
                 pdf.setFillColor(255, 255, 255); 
-                pdf.rect(0, 0, widthInMM, heightInMM, 'F');
-                pdf.setFontSize(10);
-                pdf.text("ADVERTENCIA: No hay imagen de carnet.", 5, 5);
+                pdf.rect(0, 0, PDF_WIDTH_MM, PDF_HEIGHT_MM, 'F');
+                pdf.setFontSize(8);
+                pdf.text("ADVERTENCIA: No hay imagen de carnet. Colocación de datos sin fondo.", 5, 5);
             }
             
             // --- 2. COLOCACIÓN DE DATOS CON COORDENADAS ESCALADAS ---
             
-            // Asunción de la dimensión de la imagen de origen (carnet.png) para la escala: 
-            // Max X visible es 900, Max Y es 638. Usaremos 1000x700 px para la escala.
-            const TEMPLATE_WIDTH_PX = 1000;
-            const TEMPLATE_HEIGHT_PX = 700;
+            pdf.setTextColor(0, 0, 0); 
+            pdf.setFont('helvetica', 'bold'); 
+            pdf.setFontSize(TEXT_SIZE); // Usa el tamaño de texto solicitado
             
-            // Factores de escala para pasar de píxeles a milímetros
-            const scaleX = widthInMM / TEMPLATE_WIDTH_PX; 
-            const scaleY = heightInMM / TEMPLATE_HEIGHT_PX; 
-
-            pdf.setTextColor(0, 0, 0); // Color de texto negro (asumiendo que el fondo es claro)
-            pdf.setFont('helvetica', 'normal'); // Usamos normal para los datos
-            pdf.setFontSize(8); // Tamaño de fuente en puntos
-
             const dataFields = {
                 Nombre: affiliate.Nombre,
                 Cedula: affiliate.Cedula,
@@ -348,13 +352,9 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 // Las coordenadas proporcionadas son: [X_PIXEL, Y_PIXEL]
                 const [x_px_coord, y_px_coord] = COORDINATES[key];
                 
-                // Conversión de píxeles a milímetros
-                let x_mm = x_px_coord * scaleX;
-                // La coordenada Y debe invertirse si se midió desde el borde superior de la imagen
-                let y_mm = y_px_coord * scaleY; 
-                
-                // Agregar un pequeño offset manual para corregir el origen del texto de jsPDF
-                // Si la coordenada es la base de la línea de texto, el texto aparece justo.
+                // Conversión de píxeles a milímetros usando las funciones helper solicitadas
+                let x_mm = mmX(x_px_coord);
+                let y_mm = mmY(y_px_coord); 
                 
                 pdf.text(dataFields[key], x_mm, y_mm);
             }
@@ -382,22 +382,25 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 statusMessage += "Error: No se cargaron datos de afiliación válidos. ";
                 dataLoadingMessage.classList.add('text-red-600');
                 canProceed = false;
+            } else {
+                statusMessage += "Datos de afiliación listos. ";
             }
             
             if (!imageLoaded) {
                  statusMessage += "Advertencia: La plantilla de imagen del carnet falló al cargar. ";
                  dataLoadingMessage.classList.add('text-orange-600');
+            } else {
+                statusMessage += "Plantilla de carnet cargada. ";
             }
 
             if (canProceed) {
-                statusMessage = "Datos y plantilla listos. Puede proceder a la validación.";
                 dataLoadingMessage.classList.remove('text-red-600', 'text-orange-600');
                 dataLoadingMessage.classList.add('text-green-600');
                 submitButton.disabled = false;
                 submitButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
                 submitButton.classList.add('bg-aps-blue', 'hover:bg-aps-blue-hover');
             }
-            dataLoadingMessage.textContent = statusMessage;
+            dataLoadingMessage.textContent = statusMessage.trim();
 
 
             const loginScreen = document.getElementById('carnet-login-screen');
@@ -413,7 +416,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
                 errorMessage.classList.add('hidden'); 
                 
                 if (!canProceed) {
-                    alert("Error: No se pudo cargar la data. No se puede validar.");
+                    alert("Error: La carga de datos fue crítica. No se puede validar.");
                     return;
                 }
 
@@ -460,4 +463,3 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
     </script>
 </body>
 </html>
-
