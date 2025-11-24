@@ -54,15 +54,10 @@
                 
                 <div class="login-card-content">
                     <div class="text-center">
-                        <div class="flex items-center justify-center mb-2">
-                            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0
-        Irf4A6h4D0AAAAASUVORK5CYII=" 
-                                alt="Logo APS Salud" 
-                                class="w-10 h-10 mr-2 object-contain"
-                                style="/* REEMPLAZAR EL 'src' CON SU CÓDIGO BASE64 DEL LOGO */"
-                            >
-                            <span class="text-3xl font-bold text-blue-600">APS Salud</span>
-                        </div>
+                        <h1 class="text-3xl font-bold text-blue-600 flex items-center justify-center">
+                            <svg class="w-8 h-8 mr-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3M12 12h3M12 3v18m7.5-6H4.5"/></svg>
+                            APS Salud
+                        </h1>
                         <p class="mt-2 text-lg text-gray-600">Carnet Digital de Afiliación</p>
                     </div>
                     
@@ -71,19 +66,22 @@
                             <label for="cedula" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
                             <input id="cedula" name="cedula" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="001-0000000-0" value="402-5726298-6"> </div>
+                                placeholder="001-0000000-0" value="402-5726298-6">
+                        </div>
 
                         <div>
                             <label for="poliza" class="block text-sm font-medium text-gray-700">Código de Póliza</label>
                             <input id="poliza" name="poliza" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="00000-00000-00" value="18204-56574-00"> </div>
+                                placeholder="00000-00000-00" value="18204-56574-00">
+                        </div>
 
                         <div>
                             <label for="fecha-nacimiento" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (DD/MM/AAAA)</label>
                             <input id="fecha-nacimiento" name="fecha-nacimiento" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="DD/MM/AAAA" value="16/10/2004"> </div>
+                                placeholder="DD/MM/AAAA" value="16/10/2004">
+                        </div>
 
                         <div>
                             <button type="submit"
@@ -315,3 +313,4 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
         });
     </script>
 </html>
+
