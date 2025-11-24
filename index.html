@@ -15,13 +15,13 @@
         :root {
             --aps-blue: #066aab;
             --aps-blue-hover: #055e98;
-            --page-bg-color: #f1f5f9; /* Color de fondo general, similar al gray-100 */
-            --decoration-circle-color: rgba(6, 106, 171, 0.1); /* Azul corporativo con transparencia */
+            --page-bg-color: #f1f5f9; 
+            --decoration-circle-color: rgba(6, 106, 171, 0.1); 
         }
         
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--page-bg-color); /* Aplicar el color de fondo a todo el body */
+            background-color: var(--page-bg-color); 
         }
         
         /* Aplicación del color corporativo */
@@ -38,13 +38,13 @@
         /* Estilos para el círculo decorativo */
         .decorative-circle {
             position: absolute;
-            top: -50px; /* Ajusta la posición vertical */
-            right: -50px; /* Ajusta la posición horizontal */
-            width: 200px; /* Tamaño del círculo */
-            height: 200px; /* Tamaño del círculo */
+            top: -50px; 
+            right: -50px; 
+            width: 200px; 
+            height: 200px; 
             background-color: var(--decoration-circle-color);
             border-radius: 50%;
-            z-index: 0; /* Asegura que esté detrás del contenido del formulario */
+            z-index: 0; 
         }
 
         /* Asegurar que el contenido del formulario esté por encima del círculo */
@@ -56,7 +56,7 @@
         /* El contenedor principal de la tarjeta para que el círculo se posicione relativo a él */
         .card-container { 
             position: relative;
-            overflow: hidden; /* Para que el círculo no se salga de los bordes redondeados */
+            overflow: hidden; 
         }
 
         /* Sobrescribir el color azul por defecto de Tailwind para el portal con el color corporativo */
@@ -65,19 +65,10 @@
         .text-blue-600 { color: var(--aps-blue); }
         .border-blue-500 { border-color: var(--aps-blue); }
         .focus\:ring-blue-500:focus { --tw-ring-color: var(--aps-blue); }
-        .bg-blue-50 { background-color: #eff6ff; } /* mantener un azul claro para fondos */
+        .bg-blue-50 { background-color: #eff6ff; } 
 
-        /* Estilos del portal */
-        .content-section { display: none; animation: fadeIn 0.3s ease-in-out; }
-        .content-section.active { display: block; }
+        /* Estilos de transición */
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .modal { display: none; }
-        .modal.active { display: flex; }
-        .readonly-field { background-color: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; border-radius: 0.5rem; padding: 0.75rem 1rem; width: 100%; font-size: 0.875rem; }
-        .nav-link { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; color: #d1d5db; transition: all 0.2s ease-in-out; }
-        .nav-link:hover { background-color: #374151; color: white; }
-        .nav-link.active { background-color: #2563eb; color: white; font-weight: 600; }
-        @media (max-width: 768px) { .mobile-menu-open { transform: translateX(0); } .mobile-menu-closed { transform: translateX(-100%); } }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -103,30 +94,33 @@
                             <label for="cedula-carnet" class="block text-sm font-medium text-gray-700">Cédula o NUI</label>
                             <input id="cedula-carnet" name="cedula" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                                placeholder="001-0000000-0" value="001-0219588-0">
+                                placeholder="001-0000000-0">
                         </div>
 
                         <div>
                             <label for="poliza-carnet" class="block text-sm font-medium text-gray-700">Código de Póliza</label>
                             <input id="poliza-carnet" name="poliza" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                                placeholder="123456-01" value="00525-00018-04">
+                                placeholder="123456-01">
                         </div>
                         
                         <div>
                             <label for="fecha-nacimiento-carnet" class="block text-sm font-medium text-gray-700">Fecha de Nacimiento (DD/MM/AAAA)</label>
                             <input id="fecha-nacimiento-carnet" name="fecha-nacimiento" type="text" required
                                 class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue"
-                                placeholder="Ej: 15/05/1985" value="13/06/1974">
+                                placeholder="Ej: 15/05/1985">
                         </div>
                         
                         <div id="carnet-error-message" class="hidden text-sm text-red-600 text-center font-medium">
                             Datos incorrectos. Por favor, verifique su Cédula, Póliza y Fecha de Nacimiento.
                         </div>
-
+                        <div id="data-loading-message" class="text-sm text-center text-gray-500 font-medium">
+                            Cargando datos de afiliación...
+                        </div>
+                        
                         <div>
-                            <button type="submit"
-                                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-aps-blue hover:bg-aps-blue-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-aps-blue transition-colors">
+                            <button type="submit" id="submit-button" disabled
+                                    class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-gray-400 cursor-not-allowed">
                                 Validar y Descargar Carnet
                             </button>
                         </div>
@@ -136,7 +130,7 @@
         </div>
 
         <div id="carnet-confirmation-screen" class="hidden min-h-screen flex items-center justify-center bg-gray-50 p-4">
-            <div class="card-container max-w-xl w-full bg-white rounded-xl shadow-lg p-8 text-center">
+            <div class="card-container max-w-xl w-full bg-white rounded-xl shadow-lg p-8 text-center" style="animation: fadeIn 0.3s ease-in-out;">
                 
                 <div class="decorative-circle"></div> 
 
@@ -184,17 +178,24 @@
     <script>
         const { jsPDF } = window.jspdf; 
         
-        // ** DATOS DEL CSV SIMULADO (afiliados.csv) **
-        // Se incluyen ambos registros para asegurar la validación completa.
-        const csvContent = `Nombre;Cedula;NSS;Poliza;FechaNacimiento
+        // [!!! IMPORTANTE: REEMPLACE ESTA URL CON EL ENLACE PÚBLICO RAW DE SU ARCHIVO afiliados.csv EN GITHUB !!!]
+        // EJEMPLO de URL RAW: https://raw.githubusercontent.com/su_usuario/su_repo/main/afiliados.csv
+        const CSV_URL = 'https://PLACEHOLDER.com/REEMPLACEME_CON_SU_CSV_RAW_URL'; // URL Placeholder para explicación
+        // Fallback: Si no cambia la URL, el código usará estos datos para que pueda probar la interfaz.
+        const FALLBACK_CSV_CONTENT = `Nombre;Cedula;NSS;Poliza;FechaNacimiento
 CRISTIAN AGUSTIN ULLOA MARTINEZ;001-0219588-0;2434133;00525-00018-04;13/06/1974
 YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
+
         
         let affiliateData = [];
         let loggedInAffiliate = null;
+        
+        const dataLoadingMessage = document.getElementById('data-loading-message');
+        const submitButton = document.getElementById('submit-button');
+
 
         /**
-         * Función para parsear el contenido simulado del CSV.
+         * Función para parsear el contenido CSV.
          */
         function parseCSV(csvText) {
             const lines = csvText.trim().split('\n');
@@ -212,11 +213,34 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
         }
 
         /**
-         * Carga y parsea todos los datos del CSV simulado.
+         * Carga los datos del CSV usando la API Fetch.
          */
-        function loadAffiliateData() {
-            affiliateData = parseCSV(csvContent);
-            console.log("Datos de afiliados cargados:", affiliateData);
+        async function loadAffiliateData() {
+            try {
+                // Si la URL no se ha reemplazado, usamos el fallback.
+                if (CSV_URL.includes('PLACEHOLDER')) {
+                    affiliateData = parseCSV(FALLBACK_CSV_CONTENT);
+                    dataLoadingMessage.textContent = "¡Datos de prueba listos! Reemplace la URL en el script para usar su CSV.";
+                    console.warn("ADVERTENCIA: Usando datos simulados. Reemplace 'CSV_URL' para usar su CSV.");
+                    return true;
+                }
+
+                // Intentar consumir el CSV de la URL externa
+                const response = await fetch(CSV_URL);
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status} al cargar el CSV: Verifique si la URL es RAW y pública.`);
+                }
+                const csvText = await response.text();
+                affiliateData = parseCSV(csvText);
+                dataLoadingMessage.textContent = "Datos de afiliación cargados con éxito.";
+                return true;
+            } catch (error) {
+                dataLoadingMessage.textContent = "Error CRÍTICO: No se pudieron cargar los datos. Verifique la URL y CORS.";
+                dataLoadingMessage.classList.add('text-red-600');
+                console.error("Fallo al intentar cargar el archivo CSV:", error);
+                affiliateData = []; // Vaciamos los datos si falla
+                return false;
+            }
         }
 
         /**
@@ -231,7 +255,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
         }
 
         /**
-         * Genera y descarga el Carnet PDF (tamaño ID-1), imitando la maqueta.
+         * Genera y descarga el Carnet PDF (tamaño ID-1).
          */
         function generateCarnetPdf(affiliate) {
             const downloadButton = document.getElementById('download-carnet-pdf-btn');
@@ -258,7 +282,7 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             pdf.setFillColor(255, 255, 255); 
             pdf.rect(0, 0, widthInMM, heightInMM, 'F');
             
-            // 2. LOGO MOCKUP (Mockup de la imagen carnet.png)
+            // 2. LOGO MOCKUP
             pdf.setFont('helvetica', 'bold');
             pdf.setTextColor(apsLightBlue[0], apsLightBlue[1], apsLightBlue[2]); 
             pdf.setFontSize(18);
@@ -266,8 +290,8 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             pdf.setFontSize(30);
             pdf.text('APS', 7, 18); 
             
-            // 3. DIBUJAR LOS DATOS (usando las posiciones de la maqueta image_59b020.png)
-            pdf.setTextColor(0, 0, 0); // Texto en negro
+            // 3. DIBUJAR LOS DATOS
+            pdf.setTextColor(0, 0, 0); 
             pdf.setFontSize(12);
 
             // Nombre
@@ -305,10 +329,9 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             pdf.setTextColor(0, 0, 0); 
             pdf.text('PRESENTAR JUNTO A ESTE CARNET SU DOCUMENTO DE IDENTIDAD', widthInMM / 2, heightInMM - 3, { align: 'center' });
 
-            // 5. MOCKUP QR CODE (En la esquina inferior derecha)
+            // 5. MOCKUP QR CODE 
             const qrSize = 15;
             pdf.setFillColor(0, 0, 0);
-            // Dibujar el contorno del QR para simular su presencia
             pdf.rect(widthInMM - qrSize - 3, heightInMM - qrSize - 3, qrSize, qrSize, 'S'); 
             
             // Descargar el archivo
@@ -320,8 +343,20 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
         }
 
 
-        document.addEventListener('DOMContentLoaded', function () {
-            loadAffiliateData();
+        document.addEventListener('DOMContentLoaded', async function () {
+            // 1. Cargar los datos antes de cualquier acción.
+            const dataLoaded = await loadAffiliateData();
+
+            if (dataLoaded && affiliateData.length > 0) {
+                submitButton.disabled = false;
+                submitButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                submitButton.classList.add('bg-aps-blue', 'hover:bg-aps-blue-hover');
+            } else if (dataLoaded) {
+                 // Si la carga fue exitosa pero no hay registros
+                 dataLoadingMessage.textContent = "Advertencia: Archivo CSV cargado, pero no contiene registros válidos.";
+                 dataLoadingMessage.classList.add('text-orange-600');
+            }
+
 
             const loginScreen = document.getElementById('carnet-login-screen');
             const confirmationScreen = document.getElementById('carnet-confirmation-screen');
@@ -333,19 +368,18 @@ YOMAIKER RAMIREZ MOTA;402-5726298-6;190635371;18204-56574-00;16/10/2004`;
             // --- LÓGICA DE LOGIN ---
             loginForm.addEventListener('submit', function (e) {
                 e.preventDefault();
-                errorMessage.classList.add('hidden'); // Ocultar errores anteriores
+                errorMessage.classList.add('hidden'); 
                 
                 const cedula = document.getElementById('cedula-carnet').value.trim();
                 const poliza = document.getElementById('poliza-carnet').value.trim();
                 const fechaNacimiento = document.getElementById('fecha-nacimiento-carnet').value.trim();
 
-                // *** ESTA FUNCIÓN BUSCA COINCIDENCIA EN TODOS LOS REGISTROS DE affiliateData ***
+                // Búsqueda de coincidencia en TODOS los registros cargados
                 loggedInAffiliate = affiliateData.find(affiliate => 
                     affiliate.Cedula === cedula && 
                     affiliate.Poliza === poliza && 
                     affiliate.FechaNacimiento === fechaNacimiento
                 );
-                // ********************************************************************************
 
                 if (loggedInAffiliate) {
                     // Éxito:
